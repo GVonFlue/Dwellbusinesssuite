@@ -270,9 +270,12 @@ openssl rand -hex 32
    configured", one of the two `VITE_SUPABASE_*` values is missing or you have not
    redeployed since adding it.
 2. Sign in as the leader you created in B3.
-3. `crm_users` is empty, so the policies allow that account to insert **its own
-   row as the leader**. That is the only self-promotion the database ever permits,
-   and it closes the moment the first row exists.
+3. The app finds no team-member record for the account and shows **"This account
+   has no seat yet"** with a *Claim this as the team leader* button. Press it. The
+   insert only succeeds while `crm_users` is empty — that is the only
+   self-promotion the database ever permits, and it closes the moment the first
+   row exists. If the team already exists the button is refused and the screen
+   tells you to ask the leader to add you.
 
 If you would rather do it by hand — Supabase → Authentication → Users, copy the
 uid:

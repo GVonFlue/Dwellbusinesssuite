@@ -84,8 +84,9 @@ the database.
 ### 3. First run
 
 1. Open the deployment and sign in as the leader you created.
-2. `crm_users` is empty, so the app is allowed to insert your own row as the team
-   leader — that is the only bootstrap the policies permit.
+2. You land on "This account has no seat yet" — press **Claim this as the team
+   leader**. It only works while `crm_users` is empty; that is the only bootstrap
+   the policies permit.
 3. Settings → Team: add the agents. Each gets a temporary password to hand over,
    or a "set your password" email.
 4. Settings → walk the cards top to bottom with the brokerage on the call. The

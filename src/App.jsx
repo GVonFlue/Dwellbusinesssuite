@@ -23,6 +23,7 @@ import { auth, db, configured, isDemo, demoApi } from './lib/data';
 import { mergeSettings, defaultSettings, SECTIONS, DEFAULT_AGENT_SECTIONS, DEFAULT_COORDINATOR_SECTIONS, ROLES, defaultPermissions, holidaysOf, rolloverOf, tzOf } from './lib/settings';
 import { today, urgency, effectiveDateOf, daysUntil } from './lib/dates';
 import { uid, initials } from './lib/format';
+import { Card, Btn, Field, Inp } from './components/ui';
 
 import Dashboard from './views/Dashboard';
 import PCS from './views/PCS';
@@ -382,7 +383,9 @@ export default function App() {
             </div>
             <div className="body">
               {err && <div className="note bad" style={{ marginBottom: 14 }}><AlertTriangle size={14} /> {err}</div>}
-              {me ? <View ctx={ctx} /> : <div className="empty">Loading your seat…</div>}
+              {me ? <View ctx={ctx} />
+                : loading ? <div className="empty">Loading your seat…</div>
+                : <NoSeat session={session} onDone={load} />}
             </div>
           </div>
         </div>
@@ -453,6 +456,79 @@ function DueBadge({ ctx, onClick }) {
       <AlertTriangle size={13} />
       {over ? `${over} overdue` : ''}{over && soon ? ' · ' : ''}{soon ? `${soon} inside ${flagHours}h` : ''}
     </button>
+  );
+}
+
+/* ---------------------------------------------------------------- no seat
+   The signed-in account has no crm_users row, so whoami() returned nothing.
+   Two ways to get here and they need different answers:
+
+     - FIRST RUN. crm_users is empty and the policies let this account insert
+       itself as the leader. That is the only self-promotion the database ever
+       allows and it closes the moment the first row exists.
+     - EVERY OTHER TIME. The team already exists and this account is not on it.
+       No button can fix that; the leader has to add them.
+
+   We do not know which, and cannot: an account with no row cannot read the
+   table to find out. So we let the DATABASE decide — try the insert, and if the
+   policy refuses, that is the answer. Before this screen existed the app just
+   said "Loading your seat…" forever, which is how the first real install went. */
+function NoSeat({ session, onDone }) {
+  const email = auth.email(session) || '';
+  const [name, setName] = useState(email ? email.split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : '');
+  const [busy, setBusy] = useState(false);
+  const [refused, setRefused] = useState('');
+
+  const claim = async () => {
+    setBusy(true); setRefused('');
+    try {
+      await db.upsertUser({
+        id: auth.uid(session), name: name.trim() || email, email,
+        role: 'leader', active: true, sections: [], permissions: {}, plan: {}, pools: [],
+      });
+      await onDone();
+    } catch (e) {
+      setRefused(e && e.message ? e.message : 'The database refused that.');
+    }
+    setBusy(false);
+  };
+
+  return (
+    <div style={{ maxWidth: 620 }}>
+      <Card title="This account has no seat yet"
+        sub={`Signed in as ${email}. There is no team member record attached to it.`}>
+        {!refused ? (
+          <>
+            <p style={{ fontSize: 14.5, color: '#56527a', marginTop: 0 }}>
+              If this is the first sign-in on a new install, claim it as the team leader — you will then add everyone
+              else from Settings. If the team already exists, this will be refused and the team leader needs to add you.
+            </p>
+            <div className="fgrid">
+              <Field label="Your name" full>
+                <Inp value={name} onChange={e => setName(e.target.value)} placeholder="Jeff Schnell" />
+              </Field>
+            </div>
+            <div style={{ marginTop: 12, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+              <Btn kind="p" onClick={claim} disabled={busy || !name.trim()}
+                icon={busy ? <Loader2 size={14} className="spin" /> : <ShieldCheck size={14} />}>
+                {busy ? 'Setting up…' : 'Claim this as the team leader'}
+              </Btn>
+              <Btn kind="g" onClick={() => auth.logout()}>Sign out</Btn>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="note bad"><AlertTriangle size={14} /> {refused}</div>
+            <p style={{ fontSize: 14.5, color: '#56527a' }}>
+              The database refused it, which almost always means the team already exists — the leader seat can only be
+              claimed while the team is empty. Ask your team leader to add <b>{email}</b> in Settings → Team. They can
+              send you a set-your-password email from the same screen.
+            </p>
+            <Btn kind="g" onClick={() => auth.logout()}>Sign out</Btn>
+          </>
+        )}
+      </Card>
+    </div>
   );
 }
 
