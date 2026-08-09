@@ -1,11 +1,3 @@
-
-styles_js.txt
-
-Page
-1
-/
-1
-100%
 /* ============================================================
    Design system — carried over from GVonFlue/proytech-crm verbatim,
    then extended for the realtor build (see EXTRA at the bottom).
