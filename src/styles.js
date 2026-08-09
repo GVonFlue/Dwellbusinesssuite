@@ -1,3 +1,11 @@
+
+styles_js.txt
+
+Page
+1
+/
+1
+100%
 /* ============================================================
    Design system — carried over from GVonFlue/proytech-crm verbatim,
    then extended for the realtor build (see EXTRA at the bottom).
@@ -147,7 +155,7 @@ export const CSS = `
 @media(max-width:760px){.m-grid{grid-template-columns:1fr;overflow-y:auto}.m-left,.m-right{overflow:visible}.m-right{border-left:none;border-top:1px solid #E8E9F2}}
 .dh{font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:${COBALT};margin:2px 0 12px;display:flex;align-items:center;gap:8px}.dh.mt{margin-top:22px}
 .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
-.field label{display:block;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#928DAD;margin-bottom:5px}
+.field label:not(.toggle){display:block;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#928DAD;margin-bottom:5px}
 .field input,.field select,.field textarea{width:100%;padding:9px 11px;border:1px solid #DEDFEA;border-radius:9px;font-size:13.5px;font-family:'Inter';color:${INK};background:#fff}
 .field textarea{resize:vertical}
 .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:${COBALT};box-shadow:0 0 0 3px rgba(43,77,224,.13)}
