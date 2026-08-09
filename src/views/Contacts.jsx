@@ -695,7 +695,41 @@ export function ContactModal({ contact, ctx, onClose, isNew }) {
 
         {/* ----------------------------------------------------------- right */}
         <div className="m-right">
-          <div className="dh">
+          <div className="dh"><StickyNote size={13} /> Activity</div>
+          <div className="act-types">
+            {ACT_KINDS.map(k => (
+              <button key={k.key} className={'act-t' + (tab === k.key ? ' on' : '')} onClick={() => setTab(k.key)}>
+                <k.Icon size={12} /> {k.label}
+              </button>
+            ))}
+          </div>
+          <textarea id="c-activity-note" className="act-input" value={note} onChange={e => setNote(e.target.value)}
+            placeholder={tab === 'call' ? 'What did they say on the call?'
+              : tab === 'note' ? 'What should the next conversation know?'
+              : `What was in the ${tab}?`} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+            <Btn kind="p" sm onClick={() => logActivity(tab)}>Log {tab}</Btn>
+            <span className="fu-next-note">Logging sets last touch to today.</span>
+          </div>
+          <div className="feed">
+            {feed.length === 0 ? (
+              <Empty>No history yet. The first call you log starts it.</Empty>
+            ) : feed.map(a => {
+              const Icon = KIND_ICON[a.kind] || StickyNote;
+              const by = a.by === ctx.me.id ? 'you' : ownerName(ctx, a.by);
+              return (
+                <div key={a.id} className={'fitem' + (a.kind === 'note' ? ' note' : '')}>
+                  <div className="fic"><Icon size={14} /></div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div className="ftxt">{a.note}</div>
+                    <div className="fmeta">{a.kind} · {fmtShort(a.at)} · {by}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="dh mt">
             <ListChecks size={13} /> {d.side === 'buyer' ? 'Buyer checklist' : 'Listing checklist'}
             <span className="onb-gc" style={{ marginLeft: 'auto' }}>{done}/{items.length}</span>
           </div>
@@ -765,41 +799,6 @@ export function ContactModal({ contact, ctx, onClose, isNew }) {
             <Btn kind="g" sm icon={<Plus size={13} />} onClick={addAppt}>Book</Btn>
           </div>
           <div className="fn-hint"><Check size={12} /> Marking one held is what feeds the appointment-to-close ratio.</div>
-
-          <div className="dh mt"><StickyNote size={13} /> Activity</div>
-          <div className="act-types">
-            {ACT_KINDS.map(k => (
-              <button key={k.key} className={'act-t' + (tab === k.key ? ' on' : '')} onClick={() => setTab(k.key)}>
-                <k.Icon size={12} /> {k.label}
-              </button>
-            ))}
-          </div>
-          <textarea id="c-activity-note" className="act-input" value={note} onChange={e => setNote(e.target.value)}
-            placeholder={tab === 'call' ? 'What did they say on the call?'
-              : tab === 'note' ? 'What should the next conversation know?'
-              : `What was in the ${tab}?`} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-            <Btn kind="p" sm onClick={() => logActivity(tab)}>Log {tab}</Btn>
-            <span className="fu-next-note">Logging sets last touch to today.</span>
-          </div>
-
-          <div className="feed">
-            {feed.length === 0 ? (
-              <Empty>No history yet. The first call you log starts it.</Empty>
-            ) : feed.map(a => {
-              const Icon = KIND_ICON[a.kind] || StickyNote;
-              const by = a.by === ctx.me.id ? 'you' : ownerName(ctx, a.by);
-              return (
-                <div key={a.id} className={'fitem' + (a.kind === 'note' ? ' note' : '')}>
-                  <div className="fic"><Icon size={14} /></div>
-                  <div style={{ minWidth: 0, flex: 1 }}>
-                    <div className="ftxt">{a.note}</div>
-                    <div className="fmeta">{a.kind} · {fmtShort(a.at)} · {by}</div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
         </div>
       </div>
     </ModalShell>
