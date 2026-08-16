@@ -44,9 +44,17 @@ export const CSS = `
 .sb-suite{display:block;font-family:'Space Grotesk',sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.17em;text-transform:uppercase;color:#9F9BC6;line-height:1;text-align:center}
 .sb-brand img.sb-logo+.sb-suite{padding-top:1px}
 .nucleus{width:14px;height:14px;border-radius:50%;background:${COBALT};box-shadow:0 0 0 4px rgba(43,77,224,.25),0 0 14px 2px rgba(92,118,238,.6);flex:none}
-.nav-i{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;color:#C7C3E6;font-size:14px;font-weight:500;cursor:pointer;transition:.16s;border:none;background:none;width:100%;text-align:left;margin-bottom:2px}
-.nav-i:hover{background:rgba(255,255,255,.06);color:#fff}.nav-i.on{background:${COBALT};color:#fff;box-shadow:0 6px 18px -8px rgba(43,77,224,.9);position:relative}
-.nav-i.on::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:3px;background:#FFA500}
+/* Nav rows, matched to the ProyTech CRM sidebar. The active row is an OUTLINED
+   glowing pill, not a solid cobalt block: over the circuit artwork a solid fill
+   reads as a sticker pasted on top of the texture, while an outline with a lit
+   edge reads as part of it. The 1px transparent border on the resting state is
+   what keeps the row from shifting 1px when it lights up. */
+.nav-i{display:flex;align-items:center;gap:13px;padding:11px 13px;border-radius:12px;color:#C3CBE8;font-size:14.5px;font-weight:500;cursor:pointer;
+  transition:background .16s,border-color .16s,color .16s,box-shadow .16s;border:1px solid transparent;background:none;width:100%;text-align:left;margin-bottom:5px}
+.nav-i:hover{background:rgba(120,160,255,.09);border-color:rgba(120,160,255,.16);color:#fff}
+.nav-i.on{background:linear-gradient(180deg,rgba(30,72,214,.30),rgba(19,48,150,.16));color:#fff;border-color:#3B78FF;
+  box-shadow:0 0 0 1px rgba(59,120,255,.30),0 0 26px -4px rgba(59,120,255,.65),inset 0 1px 0 rgba(255,255,255,.10);position:relative}
+.nav-i.on svg{color:#CFE0FF}
 .nav-i svg{flex:none}
 .nav-i.nav-edit{cursor:grab;background:rgba(255,255,255,.05);color:#E8E6F7}
 .nav-i.nav-edit:active{cursor:grabbing}
@@ -1134,6 +1142,11 @@ button,a,label,select,input,textarea,.kcard,.fu-card,.cli-card,.rt-person,.msec-
   border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#EDEBFF;font-family:'Inter';
   font-size:13px;font-weight:600;cursor:pointer;transition:.16s}
 .sb-out:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.3)}
+/* the standing line at the bottom of the sidebar (BRAND.tagline). It was in the
+   config and styled here from the start, but nothing ever rendered it. */
+.sb-tag{margin-top:14px;padding:0 4px 2px;line-height:1.45}
+.sb-tag b{display:block;font-size:11.5px;font-weight:700;color:#DCE4FF;letter-spacing:.005em}
+.sb-tag span{display:block;font-size:11px;color:#8E97BE;margin-top:3px}
 
 /* demo banner */
 .btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}

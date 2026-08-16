@@ -374,6 +374,12 @@ export default function App() {
                   <LogOut size={15} /> <span>Sign out</span>
                 </button>
               )}
+              {(BRAND.tagline || BRAND.taglineSub) && (
+                <div className="sb-tag">
+                  {BRAND.tagline && <b>{BRAND.tagline}</b>}
+                  {BRAND.taglineSub && <span>{BRAND.taglineSub}</span>}
+                </div>
+              )}
             </div>
           </aside>
           {navOpen && <div className="scrim" onClick={() => setNavOpen(false)} />}
