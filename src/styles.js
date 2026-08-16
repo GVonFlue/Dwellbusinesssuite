@@ -9,7 +9,7 @@ const COBALT = BRAND.colors.cobalt, INDIGO = BRAND.colors.indigo, INK = BRAND.co
 const GOLD = BRAND.colors.gold, GREEN = BRAND.colors.green, RED = BRAND.colors.red;
 
 export const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 *{box-sizing:border-box}
 /* --suitebar is the measured height of the product bar (.suite-bar). The page
    header (.top) sticks directly below it, so the two numbers have to agree —
@@ -23,38 +23,44 @@ export const CSS = `
 .gate-card input{width:100%;padding:12px 14px;border:1px solid #DEDFEA;border-radius:10px;font-size:15px;text-align:center;letter-spacing:.04em;margin-bottom:12px}
 .gate-card input:focus{outline:none;border-color:${COBALT};box-shadow:0 0 0 3px rgba(43,77,224,.13)}
 .gate-err{color:${RED};font-size:12.5px;font-weight:600;margin-bottom:10px}
-/* The sidebar. The gradient stays as the base layer so the panel is never
-   naked while the artwork loads (or if it 404s), and the artwork goes on a
-   ::before underneath the content. */
-.sb{width:236px;flex:none;background:linear-gradient(180deg,#211d44,${INK});color:#fff;display:flex;flex-direction:column;position:sticky;top:var(--topbar,0px);height:calc(100dvh - var(--topbar,0px));max-height:calc(100dvh - var(--topbar,0px));padding:20px 14px;z-index:30;overflow:hidden;isolation:isolate}
-/* The circuit artwork, plus a scrim. THE SCRIM IS LOAD-BEARING: the raw image
-   is a bright #0a2470 and the cobalt active-nav pill disappears into it. The
-   two gradients darken it to a texture and keep every nav row readable.
-   background-size:cover on a tall narrow box crops the sides, which is fine —
-   the detail is on the edges by design and the centre is near-empty. */
-.sb::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;
-  background:
-    linear-gradient(180deg,rgba(6,10,34,.56) 0%,rgba(4,7,26,.64) 45%,rgba(2,4,18,.80) 100%),
-    url('/brand/sidebar-bg.jpg') center top / cover no-repeat,
-    linear-gradient(180deg,#211d44,${INK})}
-/* the client mark and the product line, stacked — logo on top, words under it */
-.sb-brand{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:16px 14px 13px;margin:-4px -6px 16px;background:#000110;border-radius:14px;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.07),0 10px 28px -18px rgba(0,0,0,.9)}
-.sb-logo{display:block;width:100%;max-width:170px;max-height:62px;object-fit:contain}
-.sb-suite{display:block;font-family:'Space Grotesk',sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.17em;text-transform:uppercase;color:#9F9BC6;line-height:1;text-align:center}
-.sb-brand img.sb-logo+.sb-suite{padding-top:1px}
+/* ---- sidebar, matched to GVonFlue/proytech-crm ----
+   The panel is a dark navy ramp with an inline SVG (components/SidebarArt.jsx)
+   sitting behind everything. No background image and no scrim: the art is drawn
+   at the opacity it should be, so nothing has to be dimmed back down. */
+.sb{width:236px;flex:none;background:linear-gradient(180deg,#0F1433 0%,#0A0E27 55%,#05071A 100%);color:#fff;display:flex;flex-direction:column;position:sticky;top:var(--topbar,0px);height:calc(100dvh - var(--topbar,0px));max-height:calc(100dvh - var(--topbar,0px));padding:20px 14px;z-index:30;overflow:hidden}
+.sb-art{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.9}
+/* everything else has to sit above the art */
+.sb>*:not(.sb-art){position:relative;z-index:1}
+.sb-pulse circle{animation:sbp 4.5s ease-in-out infinite}
+.sb-pulse circle:nth-child(2){animation-delay:1.5s}
+.sb-pulse circle:nth-child(3){animation-delay:3s}
+@keyframes sbp{0%,100%{opacity:.25}50%{opacity:.85}}
+@media(prefers-reduced-motion:reduce){.sb-pulse circle{animation:none;opacity:.5}}
+/* NO box around the mark. A filled panel over the art reads as a sticker; the
+   bloom below does the same job the bright node does in the reference art, so
+   the logo reads as lit rather than stuck on. */
+.sb-brand{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:22px 14px 18px;margin:-4px -6px 14px}
+.sb-logo{max-height:56px;max-width:184px;object-fit:contain;position:relative;z-index:1}
+.sb-glow{position:absolute;top:-6px;left:50%;transform:translateX(-50%);
+  width:190px;height:120px;pointer-events:none;
+  background:radial-gradient(50% 50% at 50% 40%,rgba(56,189,248,.30),rgba(43,77,224,.16) 45%,transparent 72%);
+  filter:blur(2px)}
+.sb-suite{position:relative;z-index:1;font-family:'Space Mono',ui-monospace,monospace;
+  font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#7FC8F0;
+  text-shadow:0 0 12px rgba(56,189,248,.5);margin-top:4px;text-align:center}
+/* a hairline under the mark, brightest in the middle — the panel's own divider
+   rather than a border box */
+.sb-brand::after{content:'';position:absolute;left:14px;right:14px;bottom:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(56,189,248,.42),transparent)}
 .nucleus{width:14px;height:14px;border-radius:50%;background:${COBALT};box-shadow:0 0 0 4px rgba(43,77,224,.25),0 0 14px 2px rgba(92,118,238,.6);flex:none}
-/* Nav rows, matched to the ProyTech CRM sidebar. The active row is an OUTLINED
-   glowing pill, not a solid cobalt block: over the circuit artwork a solid fill
-   reads as a sticker pasted on top of the texture, while an outline with a lit
-   edge reads as part of it. The 1px transparent border on the resting state is
-   what keeps the row from shifting 1px when it lights up. */
-.nav-i{display:flex;align-items:center;gap:13px;padding:11px 13px;border-radius:12px;color:#C3CBE8;font-size:14.5px;font-weight:500;cursor:pointer;
-  transition:background .16s,border-color .16s,color .16s,box-shadow .16s;border:1px solid transparent;background:none;width:100%;text-align:left;margin-bottom:5px}
-.nav-i:hover{background:rgba(120,160,255,.09);border-color:rgba(120,160,255,.16);color:#fff}
-.nav-i.on{background:linear-gradient(180deg,rgba(30,72,214,.30),rgba(19,48,150,.16));color:#fff;border-color:#3B78FF;
-  box-shadow:0 0 0 1px rgba(59,120,255,.30),0 0 26px -4px rgba(59,120,255,.65),inset 0 1px 0 rgba(255,255,255,.10);position:relative}
-.nav-i.on svg{color:#CFE0FF}
+.nav-i{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;color:#C7C3E6;font-size:14px;font-weight:500;cursor:pointer;transition:.16s;border:none;background:none;width:100%;text-align:left;margin-bottom:2px}
+.nav-i:hover{background:rgba(255,255,255,.06);color:#fff;backdrop-filter:blur(2px)}
+/* The active row fades out to the right and is lit by a 2px cyan bar on its
+   inside edge. An even fill would sit on the art as a block; the fade lets the
+   traces read straight through the tail of the row. */
+.nav-i.on{background:linear-gradient(90deg,color-mix(in srgb,${COBALT} 46%,transparent),color-mix(in srgb,${COBALT} 16%,transparent));
+  color:#fff;box-shadow:inset 2px 0 0 #38BDF8,0 0 22px -8px rgba(56,189,248,.55)}
+.nav-i.on svg{color:#7FD8FF}
 .nav-i svg{flex:none}
 .nav-i.nav-edit{cursor:grab;background:rgba(255,255,255,.05);color:#E8E6F7}
 .nav-i.nav-edit:active{cursor:grabbing}
@@ -1144,9 +1150,8 @@ button,a,label,select,input,textarea,.kcard,.fu-card,.cli-card,.rt-person,.msec-
 .sb-out:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.3)}
 /* the standing line at the bottom of the sidebar (BRAND.tagline). It was in the
    config and styled here from the start, but nothing ever rendered it. */
-.sb-tag{margin-top:14px;padding:0 4px 2px;line-height:1.45}
-.sb-tag b{display:block;font-size:11.5px;font-weight:700;color:#DCE4FF;letter-spacing:.005em}
-.sb-tag span{display:block;font-size:11px;color:#8E97BE;margin-top:3px}
+.sb-tag{font-size:11px;color:#888;padding:12px 8px 2px;line-height:1.5}
+.sb-tag b{display:block;color:#B9B5D8;font-weight:600}
 
 /* demo banner */
 .btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}

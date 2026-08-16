@@ -17,9 +17,9 @@ export const ASSETS = {
   clientLogo:     '/brand/dwell-logo.png',
   clientLogoAlt:  'dwellWICHITA',
 
-  /* the sidebar backdrop. Sits UNDER a dark scrim (see .sb::before in
-     styles.js) so nav text keeps its contrast — do not remove the scrim. */
-  sidebarBg:      '/brand/sidebar-bg.jpg',
+  /* NOTE: there is no sidebar image. The circuit backdrop is an inline SVG in
+     src/components/SidebarArt.jsx, ported from the ProyTech CRM so both
+     products draw the same panel. See that file for why it is not a raster. */
 
   /* ours, at the top of every screen. The artwork's own background is #000110,
      which is why .suite-logo paints a #000110 chip behind it — they match

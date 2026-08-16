@@ -20,6 +20,7 @@ import {
 import { BRAND, DEMO, PRODUCT_SHORT } from './lib/brand';
 import { ASSETS } from './lib/assets';
 import { photoOf } from './lib/people';
+import SidebarArt from './components/SidebarArt';
 import { CSS } from './styles';
 import { auth, db, configured, isDemo, demoApi } from './lib/data';
 import { mergeSettings, defaultSettings, SECTIONS, DEFAULT_AGENT_SECTIONS, DEFAULT_COORDINATOR_SECTIONS, ROLES, defaultPermissions, holidaysOf, rolloverOf, tzOf } from './lib/settings';
@@ -330,11 +331,14 @@ export default function App() {
               account and Sign out, so neither can ever be pushed off-screen by a
               long nav list or by the demo bar taking height off the top. */}
           <aside className={'sb' + (navOpen ? ' open' : '')}>
-            {/* The client's mark, hard-coded (src/lib/assets.js), on the #000110
-                band the white artwork needs. "Business Suite" sits under it —
-                the lockup is the logo plus the product line, stacked, not two
-                things side by side. */}
+            {/* The circuit backdrop. First child, and the only one the CSS
+                lets sit at z-index 0 — everything after it stacks above. */}
+            <SidebarArt />
+
+            {/* The client's mark, hard-coded (src/lib/assets.js). No box behind
+                it: the .sb-glow bloom lights it instead, same as the CRM. */}
             <div className="sb-brand">
+              <div className="sb-glow" aria-hidden="true" />
               <img className="sb-logo" src={ASSETS.clientLogo} alt={ASSETS.clientLogoAlt} />
               <span className="sb-suite">{isDemo ? `${PRODUCT_SHORT} · demo` : PRODUCT_SHORT}</span>
             </div>

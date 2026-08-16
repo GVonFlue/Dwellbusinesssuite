@@ -73,6 +73,14 @@ export default async function run(t, { mount, tick, dom }) {
      These four are the whole point of the Dwell skin, and every one of them is
      the kind of thing that breaks silently: an image path typo renders a broken
      icon, not an error, and nobody notices until the client does. */
+  /* the circuit backdrop is markup, not a background-image, so it is testable */
+  const art = document.querySelector('.sb .sb-art');
+  t.ok(art, 'the sidebar carries the inline circuit art');
+  t.ok(art && art.querySelectorAll('path').length > 10, 'with its traces, arcs and hexes drawn');
+  t.ok(art && art.querySelector('.sb-pulse'), 'and the pulsing nodes');
+  t.ok(art === document.querySelector('.sb').firstElementChild,
+    'as the first child, so everything else stacks above it');
+
   const sbLogo = document.querySelector('.sb-brand .sb-logo');
   t.ok(sbLogo, "the client's mark is in the sidebar");
   t.ok(sbLogo && /\/brand\/dwell-logo\.png$/.test(sbLogo.getAttribute('src') || ''),
