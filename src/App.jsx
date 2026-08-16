@@ -17,7 +17,9 @@ import {
   Loader2, AlertTriangle, ShieldCheck, RotateCcw, Plane,
 } from 'lucide-react';
 
-import { BRAND, DEMO, PRODUCT, PRODUCT_SHORT } from './lib/brand';
+import { BRAND, DEMO, PRODUCT_SHORT } from './lib/brand';
+import { ASSETS } from './lib/assets';
+import { photoOf } from './lib/people';
 import { CSS } from './styles';
 import { auth, db, configured, isDemo, demoApi } from './lib/data';
 import { mergeSettings, defaultSettings, SECTIONS, DEFAULT_AGENT_SECTIONS, DEFAULT_COORDINATOR_SECTIONS, ROLES, defaultPermissions, holidaysOf, rolloverOf, tzOf } from './lib/settings';
@@ -328,9 +330,13 @@ export default function App() {
               account and Sign out, so neither can ever be pushed off-screen by a
               long nav list or by the demo bar taking height off the top. */}
           <aside className={'sb' + (navOpen ? ' open' : '')}>
+            {/* The client's mark, hard-coded (src/lib/assets.js), on the #000110
+                band the white artwork needs. "Business Suite" sits under it —
+                the lockup is the logo plus the product line, stacked, not two
+                things side by side. */}
             <div className="sb-brand">
-              {BRAND.logo ? <img src={BRAND.logo} alt={BRAND.name} />
-                : <><span className="nucleus" /><div><b>{BRAND.short}</b><span>{isDemo ? 'demo' : PRODUCT_SHORT}</span></div></>}
+              <img className="sb-logo" src={ASSETS.clientLogo} alt={ASSETS.clientLogoAlt} />
+              <span className="sb-suite">{isDemo ? `${PRODUCT_SHORT} · demo` : PRODUCT_SHORT}</span>
             </div>
 
             <nav className="sb-nav">
@@ -346,7 +352,14 @@ export default function App() {
 
             <div className="sb-foot">
               <div className="sb-me">
-                <span className="sb-av">{initials(me ? me.name : '')}</span>
+                {/* photoOf() resolves by email, then by name, then by the leader
+                    seat — so an agent or the demo's "View as" switcher still
+                    gets their own initials rather than the owner's face. */}
+                <span className={'sb-av' + (photoOf(me) ? ' has-photo' : '')}>
+                  {photoOf(me)
+                    ? <img src={photoOf(me)} alt={me ? me.name : ''} loading="lazy" />
+                    : initials(me ? me.name : '')}
+                </span>
                 <div style={{ minWidth: 0 }}>
                   <b>{me ? me.name : ''}</b>
                   <span>{roleLabelOf(me)}</span>
@@ -366,9 +379,14 @@ export default function App() {
           {navOpen && <div className="scrim" onClick={() => setNavOpen(false)} />}
 
           <div className="main">
+            {/* Our wordmark, then the product line. The chip behind the image is
+                #000110 — the same colour as the artwork's own background — so
+                the logo reads as a mark and not as a pasted-in rectangle. */}
             <div className="suite-bar">
-              <span className="suite-mark" aria-hidden="true" />
-              <span className="suite-name">{PRODUCT}</span>
+              <span className="suite-logo">
+                <img src={ASSETS.productLogo} alt={ASSETS.productLogoAlt} />
+              </span>
+              <span className="suite-name">{PRODUCT_SHORT}</span>
               <span className="suite-for">built for {BRAND.name}</span>
             </div>
             <div className="top">

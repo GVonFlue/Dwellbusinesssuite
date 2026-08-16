@@ -11,7 +11,11 @@ const GOLD = BRAND.colors.gold, GREEN = BRAND.colors.green, RED = BRAND.colors.r
 export const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box}
-.pt{font-family:'Inter',system-ui,sans-serif;color:#221f3d;display:flex;min-height:100vh;background:#F4F6FB}
+/* --suitebar is the measured height of the product bar (.suite-bar). The page
+   header (.top) sticks directly below it, so the two numbers have to agree —
+   change the bar's padding or logo height and you must change this too, or the
+   header slides under the bar. */
+.pt{font-family:'Inter',system-ui,sans-serif;color:#221f3d;display:flex;min-height:100vh;background:#F4F6FB;--suitebar:51px}
 .pt h1,.pt h2,.pt h3,.pt h4,.disp{font-family:'Space Grotesk',sans-serif;letter-spacing:-.01em}
 .gate{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#211d44,${INK})}
 .gate-card{background:#fff;border-radius:20px;padding:38px 34px;width:340px;box-shadow:0 30px 80px -30px rgba(0,0,0,.6);text-align:center}
@@ -19,12 +23,27 @@ export const CSS = `
 .gate-card input{width:100%;padding:12px 14px;border:1px solid #DEDFEA;border-radius:10px;font-size:15px;text-align:center;letter-spacing:.04em;margin-bottom:12px}
 .gate-card input:focus{outline:none;border-color:${COBALT};box-shadow:0 0 0 3px rgba(43,77,224,.13)}
 .gate-err{color:${RED};font-size:12.5px;font-weight:600;margin-bottom:10px}
-.sb{width:236px;flex:none;background:linear-gradient(180deg,#211d44,${INK});color:#fff;display:flex;flex-direction:column;position:sticky;top:var(--topbar,0px);height:calc(100dvh - var(--topbar,0px));max-height:calc(100dvh - var(--topbar,0px));padding:20px 14px;z-index:30;overflow:hidden}
-.sb-brand{display:flex;align-items:center;justify-content:center;gap:11px;padding:16px 14px;margin:-4px -6px 16px;background:#000110;border-radius:14px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
-.sb-brand img{max-height:46px;max-width:172px;object-fit:contain}
+/* The sidebar. The gradient stays as the base layer so the panel is never
+   naked while the artwork loads (or if it 404s), and the artwork goes on a
+   ::before underneath the content. */
+.sb{width:236px;flex:none;background:linear-gradient(180deg,#211d44,${INK});color:#fff;display:flex;flex-direction:column;position:sticky;top:var(--topbar,0px);height:calc(100dvh - var(--topbar,0px));max-height:calc(100dvh - var(--topbar,0px));padding:20px 14px;z-index:30;overflow:hidden;isolation:isolate}
+/* The circuit artwork, plus a scrim. THE SCRIM IS LOAD-BEARING: the raw image
+   is a bright #0a2470 and the cobalt active-nav pill disappears into it. The
+   two gradients darken it to a texture and keep every nav row readable.
+   background-size:cover on a tall narrow box crops the sides, which is fine —
+   the detail is on the edges by design and the centre is near-empty. */
+.sb::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(6,10,34,.56) 0%,rgba(4,7,26,.64) 45%,rgba(2,4,18,.80) 100%),
+    url('/brand/sidebar-bg.jpg') center top / cover no-repeat,
+    linear-gradient(180deg,#211d44,${INK})}
+/* the client mark and the product line, stacked — logo on top, words under it */
+.sb-brand{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:16px 14px 13px;margin:-4px -6px 16px;background:#000110;border-radius:14px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.07),0 10px 28px -18px rgba(0,0,0,.9)}
+.sb-logo{display:block;width:100%;max-width:170px;max-height:62px;object-fit:contain}
+.sb-suite{display:block;font-family:'Space Grotesk',sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.17em;text-transform:uppercase;color:#9F9BC6;line-height:1;text-align:center}
+.sb-brand img.sb-logo+.sb-suite{padding-top:1px}
 .nucleus{width:14px;height:14px;border-radius:50%;background:${COBALT};box-shadow:0 0 0 4px rgba(43,77,224,.25),0 0 14px 2px rgba(92,118,238,.6);flex:none}
-.sb-brand b{font-family:'Space Grotesk';font-size:16px;font-weight:600}
-.sb-brand span{display:block;font-size:11px;color:#A9A4CC;font-weight:400;letter-spacing:.04em}
 .nav-i{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;color:#C7C3E6;font-size:14px;font-weight:500;cursor:pointer;transition:.16s;border:none;background:none;width:100%;text-align:left;margin-bottom:2px}
 .nav-i:hover{background:rgba(255,255,255,.06);color:#fff}.nav-i.on{background:${COBALT};color:#fff;box-shadow:0 6px 18px -8px rgba(43,77,224,.9);position:relative}
 .nav-i.on::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:3px;background:#FFA500}
@@ -42,7 +61,7 @@ export const CSS = `
 .nav-i.nav-reset{font-size:12px;color:#9C98C4;padding-top:6px;padding-bottom:6px}
 .sb-foot{margin-top:auto;font-size:11px;color:#888;padding:12px 8px 2px;border-top:1px solid rgba(255,255,255,.08);line-height:1.5}.sb-foot b{color:#B9B5D8;font-weight:600}
 .main{flex:1;min-width:0;display:flex;flex-direction:column}
-.top{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 30px;background:#fff;border-bottom:1px solid #E8E9F2;position:sticky;top:calc(var(--topbar,0px) + 36px);z-index:20}
+.top{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 30px;background:#fff;border-bottom:1px solid #E8E9F2;position:sticky;top:calc(var(--topbar,0px) + var(--suitebar,51px));z-index:20}
 .top h1{font-size:21px;font-weight:600}.top .sub{font-size:13px;color:#777296;margin-top:2px}
 .body{padding:26px 30px 60px;width:100%;max-width:1320px}
 .hamb{display:none;background:none;border:none;color:${INDIGO};cursor:pointer}
@@ -944,7 +963,10 @@ export const CSS = `
 .rdot.on{background:${GREEN};border-color:${GREEN}}
 .iconbtn{background:#F1F2F8;border:none;border-radius:7px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#56527a;flex:none}.iconbtn:hover{background:#E6E7F1}.iconbtn:disabled{opacity:.35;cursor:default}
 @media(max-width:820px){
-  .sb{position:fixed;left:0;top:0;transform:translateX(-100%);transition:transform .25s;box-shadow:0 0 60px rgba(0,0,0,.4)}.sb.open{transform:none}.hamb{display:block}
+  /* top is INHERITED from the base .sb rule (var(--topbar)), not pinned to 0.
+     Pinning it to 0 put the drawer under the demo bar and hid the client's
+     logo — which is the first thing anyone opening this on a phone looks at. */
+  .sb{position:fixed;left:0;transform:translateX(-100%);transition:transform .25s;box-shadow:0 0 60px rgba(0,0,0,.4)}.sb.open{transform:none}.hamb{display:block}
   .m-grid{grid-template-columns:1fr;overflow-y:auto}
   .m-left,.m-right{overflow:visible}
   .m-right{border-left:none;border-top:1px solid #E8E9F2}
@@ -1057,14 +1079,17 @@ button,a,label,select,input,textarea,.kcard,.fu-card,.cli-card,.rt-person,.msec-
 
 /* ==================== realtor build additions ==================== */
 /* ---- the product wordmark: ours, at the top of every screen ---- */
-.suite-bar{display:flex;align-items:center;gap:11px;padding:9px 30px;background:linear-gradient(90deg,${INK},#1c2247 60%,#243056);
+.suite-bar{display:flex;align-items:center;gap:11px;padding:7px 30px;background:linear-gradient(90deg,${INK},#1c2247 60%,#243056);
   color:#EDEBFF;position:sticky;top:var(--topbar,0px);z-index:21;border-bottom:1px solid rgba(255,255,255,.08)}
-.suite-mark{flex:none;width:9px;height:9px;border-radius:50%;background:${COBALT};
-  box-shadow:0 0 0 4px rgba(19,56,222,.28),0 0 14px 2px rgba(92,118,238,.65)}
+/* the chip is #000110 because the logo file's own background is #000110 —
+   they meet invisibly, so the mark floats rather than sitting in a box */
+.suite-logo{flex:none;display:inline-flex;align-items:center;background:#000110;border-radius:9px;
+  padding:5px 11px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 6px 16px -10px rgba(0,0,0,.9)}
+.suite-logo img{display:block;height:26px;width:auto}
 .suite-name{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;letter-spacing:.02em;white-space:nowrap}
 .suite-for{font-size:12px;color:#A9A4CC;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .suite-for::before{content:'·';margin-right:9px;color:#5B5685}
-@media (max-width:640px){ .suite-bar{padding:8px 16px} .suite-for{display:none} }
+@media (max-width:640px){ .pt{--suitebar:45px} .suite-bar{padding:6px 16px;gap:9px} .suite-for{display:none} .suite-logo img{height:22px} }
 
 /* ---- the books: category picker ---- */
 .bk-catpick{display:flex;align-items:center;gap:9px}
@@ -1096,9 +1121,13 @@ button,a,label,select,input,textarea,.kcard,.fu-card,.cli-card,.rt-person,.msec-
 .sb-nav::-webkit-scrollbar-track{background:transparent}
 .sb-foot{flex:none;margin-top:10px;padding:12px 6px 2px;border-top:1px solid rgba(255,255,255,.1)}
 .sb-me{display:flex;align-items:center;gap:10px;margin-bottom:10px;min-width:0}
-.sb-av{flex:none;width:32px;height:32px;border-radius:50%;background:${COBALT};color:#fff;font-family:'Space Grotesk';
-  font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;
+.sb-av{flex:none;width:38px;height:38px;border-radius:50%;background:${COBALT};color:#fff;font-family:'Space Grotesk';
+  font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;overflow:hidden;
   box-shadow:0 0 0 3px rgba(19,56,222,.22)}
+/* a real headshot: no cobalt disc behind it, a soft ring instead, and the
+   image cropped to the circle rather than squashed into it */
+.sb-av.has-photo{background:#0B0F26;box-shadow:0 0 0 2px rgba(255,255,255,.22),0 6px 16px -8px rgba(0,0,0,.9)}
+.sb-av img{width:100%;height:100%;object-fit:cover;object-position:center;border-radius:50%;display:block}
 .sb-me b{display:block;font-size:13px;color:#EDEBFF;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sb-me span{display:block;font-size:11px;color:#A9A4CC;letter-spacing:.03em}
 .sb-out{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:9px 12px;border-radius:10px;

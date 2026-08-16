@@ -48,6 +48,17 @@ const TZ = 'America/Chicago';
 const TODAY = realToday(TZ);
 const MONDAY = plus(TODAY, -((dayOfWeek(TODAY) + 6) % 7));   // Monday of this week
 const SUNDAY = plus(MONDAY, 6);
+/* The fixture's calendar-year dates are built from TODAY's year, not written as
+   2026 literals. Several KPIs (GCI year-to-date, appointments held this
+   calendar year, conversion ratio) filter on the CURRENT year, so a hardcoded
+   2026 date silently stops matching at midnight on 1 Jan and takes eight
+   assertions red with it. YEAR/PRIOR keep "earlier this year" and "last year"
+   meaning what they say, forever. */
+const YEAR  = TODAY.slice(0, 4);
+const PRIOR = String(+YEAR - 1);
+const inYear  = md => `${YEAR}-${md}`;
+const inPrior = md => `${PRIOR}-${md}`;
+
 const YESTERDAY = plus(TODAY, -1);
 const TOMORROW = plus(TODAY, 1);
 
@@ -56,57 +67,57 @@ const dl = (key, date, extra) => ({ key, label: key, date, status: 'open', count
 const CONTACTS = [
   /* an open-stage contact with no transaction — real open pipeline */
   { id: 'c-open', name: 'Open Olive', side: 'seller', stage: 'apptheld', source: 'Referral',
-    owner_id: 'u-a', targetPrice: 400000, created_at: '2026-06-01', lastTouch: TODAY,
-    appointments: [{ id: 'ap-1', type: 'listing', at: '2026-07-01', status: 'held' }],
+    owner_id: 'u-a', targetPrice: 400000, created_at: inYear('06-01'), lastTouch: TODAY,
+    appointments: [{ id: 'ap-1', type: 'listing', at: inYear('07-01'), status: 'held' }],
     activity: [
-      { id: 'x1', at: '2026-06-01', kind: 'note', note: 'Came in from Referral.' },
-      { id: 'x2', at: '2026-06-05', kind: 'call', note: 'Rang them.' },
+      { id: 'x1', at: inYear('06-01'), kind: 'note', note: 'Came in from Referral.' },
+      { id: 'x2', at: inYear('06-05'), kind: 'call', note: 'Rang them.' },
     ] },
   /* an open-stage contact that is ALREADY under contract — must not be in the
      open-pipeline figures, it is on the transactions board */
   { id: 'c-uc', name: 'Under Ursula', side: 'seller', stage: 'offer', source: 'Zillow',
-    owner_id: 'u-a', targetPrice: 500000, created_at: '2026-05-01', lastTouch: TODAY,
-    appointments: [], activity: [{ id: 'x3', at: '2026-05-01', kind: 'note', note: 'Came in from Zillow.' }] },
+    owner_id: 'u-a', targetPrice: 500000, created_at: inYear('05-01'), lastTouch: TODAY,
+    appointments: [], activity: [{ id: 'x3', at: inYear('05-01'), kind: 'note', note: 'Came in from Zillow.' }] },
   /* an open-stage contact whose deal has already CLOSED — its money is in GCI */
   { id: 'c-done', name: 'Closed Cleo', side: 'seller', stage: 'active', source: 'Past Client',
-    owner_id: 'u-a', targetPrice: 300000, created_at: '2026-01-02', lastTouch: TODAY,
-    closedWithUsOn: '2026-03-01',
+    owner_id: 'u-a', targetPrice: 300000, created_at: inYear('01-02'), lastTouch: TODAY,
+    closedWithUsOn: inYear('03-01'),
     /* the appointment is AFTER the close: it cannot have produced it */
-    appointments: [{ id: 'ap-2', type: 'listing', at: '2026-06-01', status: 'held' }],
-    activity: [{ id: 'x4', at: '2026-01-02', kind: 'note', note: 'Came in from Past Client.' }] },
+    appointments: [{ id: 'ap-2', type: 'listing', at: inYear('06-01'), status: 'held' }],
+    activity: [{ id: 'x4', at: inYear('01-02'), kind: 'note', note: 'Came in from Past Client.' }] },
   /* a contact with a held appointment BEFORE its close — this one counts */
   { id: 'c-credit', name: 'Credit Cyrus', side: 'buyer', stage: 'nurturing', source: 'Referral',
-    owner_id: 'u-a', priceMin: 200000, priceMax: 200000, created_at: '2026-01-05', lastTouch: TODAY,
-    appointments: [{ id: 'ap-3', type: 'consult', at: '2026-02-01', status: 'held' }],
-    activity: [{ id: 'x5', at: '2026-01-05', kind: 'note', note: 'Came in from Referral.' }] },
+    owner_id: 'u-a', priceMin: 200000, priceMax: 200000, created_at: inYear('01-05'), lastTouch: TODAY,
+    appointments: [{ id: 'ap-3', type: 'consult', at: inYear('02-01'), status: 'held' }],
+    activity: [{ id: 'x5', at: inYear('01-05'), kind: 'note', note: 'Came in from Referral.' }] },
   /* a LOST contact with a transaction and no appointments at all */
   { id: 'c-lost', name: 'Lost Lena', side: 'buyer', stage: 'lost', source: 'Social',
-    owner_id: 'u-a', priceMin: 100000, priceMax: 100000, created_at: '2026-02-01', lastTouch: TODAY,
-    appointments: [], activity: [{ id: 'x6', at: '2026-02-01', kind: 'note', note: 'Came in from Social.' }] },
+    owner_id: 'u-a', priceMin: 100000, priceMax: 100000, created_at: inYear('02-01'), lastTouch: TODAY,
+    appointments: [], activity: [{ id: 'x6', at: inYear('02-01'), kind: 'note', note: 'Came in from Social.' }] },
 ];
 
 const TXNS = [
   { id: 't-uc', owner_id: 'u-a', contact_id: 'c-uc', side: 'seller', phase: 'uc', status: 'active',
     address: '1 Live Ln', salePrice: 500000, commissionRate: 3,
-    effectiveDate: '2026-07-20', closeDate: '2026-09-01',
+    effectiveDate: inYear('07-20'), closeDate: inYear('09-01'),
     deadlines: [
       dl('overdue-one', YESTERDAY),             // overdue, and NOT inside 48h
       dl('tomorrow-one', TOMORROW),             // inside 48h
-      dl('later-one', '2026-08-20'),
+      dl('later-one', plus(TODAY, 4)),        // outside the window below, not overdue
       dl('nodate-one', null),                   // no date at all
     ] },
   { id: 't-closed', owner_id: 'u-a', contact_id: 'c-done', side: 'seller', phase: 'closed', status: 'closed',
     address: '2 Done Dr', salePrice: 300000, commissionRate: 3,
-    effectiveDate: '2026-02-01', closeDate: '2026-03-01', closedActual: '2026-03-01',
+    effectiveDate: inYear('02-01'), closeDate: inYear('03-01'), closedActual: inYear('03-01'),
     capContribution: 1350,
-    commissionSnapshot: { gross: 9000, agentNet: 7650, toBrokerage: 1350, teamCut: 0, at: '2026-03-01' } },
+    commissionSnapshot: { gross: 9000, agentNet: 7650, toBrokerage: 1350, teamCut: 0, at: inYear('03-01') } },
   /* closed by dragging the card into the Closed column: NO snapshot was written */
   { id: 't-nosnap', owner_id: 'u-a', contact_id: 'c-credit', side: 'buyer', phase: 'closed', status: 'closed',
     address: '3 Drag Way', salePrice: 200000, commissionRate: 3,
-    effectiveDate: '2026-04-01', closeDate: '2026-05-01', closedActual: '2026-05-01' },
+    effectiveDate: inYear('04-01'), closeDate: inYear('05-01'), closedActual: inYear('05-01') },
   { id: 't-fell', owner_id: 'u-a', contact_id: 'c-lost', side: 'buyer', phase: 'fell', status: 'fell',
     address: '4 Dead End', salePrice: 100000, commissionRate: 3,
-    effectiveDate: '2026-03-01', closeDate: '2026-04-01', fellAt: '2026-03-20', fellPhase: 'financing' },
+    effectiveDate: inYear('03-01'), closeDate: inYear('04-01'), fellAt: inYear('03-20'), fellPhase: 'financing' },
 ];
 
 const USERS = [
@@ -246,7 +257,7 @@ export default async function run(t) {
   /* move the June appointment to before the March close and it starts counting */
   const earlier = makeCtx(S, {
     contacts: CONTACTS.map(c => (c.id === 'c-done'
-      ? { ...c, appointments: [{ id: 'ap-2', type: 'listing', at: '2026-02-15', status: 'held' }] }
+      ? { ...c, appointments: [{ id: 'ap-2', type: 'listing', at: inYear('02-15'), status: 'held' }] }
       : c)),
   });
   t.eq(V.buildModel(earlier).activity.apptToClose.closes, 2,
@@ -256,8 +267,8 @@ export default async function run(t) {
   const noisy = makeCtx(S, {
     contacts: CONTACTS.map(c => (c.id === 'c-credit'
       ? { ...c, appointments: [
-        { id: 'ap-3', type: 'showing', at: '2026-02-01', status: 'held' },
-        { id: 'ap-4', type: 'consult', at: '2026-02-02', status: 'noshow' },
+        { id: 'ap-3', type: 'showing', at: inYear('02-01'), status: 'held' },
+        { id: 'ap-4', type: 'consult', at: inYear('02-02'), status: 'noshow' },
       ] }
       : c)),
   });
@@ -291,7 +302,7 @@ export default async function run(t) {
     transactions: [...TXNS, {
       id: 't-second', owner_id: 'u-a', contact_id: 'c-uc', side: 'buyer', phase: 'closed',
       status: 'closed', salePrice: 250000, commissionRate: 3,
-      closeDate: '2026-06-01', closedActual: '2026-06-01',
+      closeDate: inYear('06-01'), closedActual: inYear('06-01'),
     }],
   });
   const f2 = V.buildModel(twoDeals).funnel;
@@ -335,24 +346,38 @@ export default async function run(t) {
 
   /* ==================================================================== 2
      THE HUDDLE DECIDES OVERDUE AGAINST TODAY.
-     The overdue deadline is 6 Aug — inside the Mon 3 – Sun 9 week on screen, so
-     the old `when < weekOf` test called it "lands this week" while its own chip
-     computed daysUntil() against today and printed "in -1 days". */
-  const wd = V.weekDates(TXNS, MONDAY, SUNDAY, 'UTC');
+     The overdue deadline is yesterday — inside the window on screen, so the old
+     `when < weekOf` test called it "lands this week" while its own chip computed
+     daysUntil() against today and printed "in -1 days". */
+  /* The window is TODAY +/- 3 days, not Monday-Sunday. A Mon-Sun week cannot
+     hold both YESTERDAY and TOMORROW on the days that matter: run this on a
+     Monday and YESTERDAY falls in the previous week, run it on a Sunday and
+     TOMORROW falls in the next one, and either way the row being asserted on
+     comes back undefined. weekDates() takes an arbitrary window, so widening it
+     tests exactly the same logic on all seven days instead of five.
+
+     TZ, not 'UTC' — see the note at the top of this file. The fixture is
+     anchored in Chicago and handing the model a different zone puts them a day
+     apart for six hours every evening. */
+  const WIN_FROM = plus(TODAY, -3), WIN_TO = plus(TODAY, 3);
+  const wd = V.weekDates(TXNS, WIN_FROM, WIN_TO, TZ);
   const od = wd.find(d => d.label === 'overdue-one');
   const soon = wd.find(d => d.label === 'tomorrow-one');
-  t.ok(od && od.overdue === true, 'a deadline that passed on Thursday is overdue in the Mon-Sun week it sits in');
-  t.ok(od && od.inWeek === true, 'and it is still inside the week on screen');
+  t.ok(od && od.overdue === true, 'a deadline that passed yesterday is overdue in the window it sits in');
+  t.ok(od && od.inWeek === true, 'and it is still inside the window on screen');
   t.ok(soon && soon.overdue === false, "tomorrow's deadline is not overdue");
   t.eq(wd.filter(d => d.overdue).length, 1, 'the header says 1 overdue, matching the dashboard');
-  t.eq(wd.filter(d => !d.overdue && d.inWeek).length, 1, 'and 1 still to land this week');
+  t.eq(wd.filter(d => !d.overdue && d.inWeek).length, 1, 'and 1 still to land inside the window');
   t.ok(wd.every(d => d.away == null || d.overdue === d.away < 0),
     'no row can be "lands this week" while its own days-until is negative');
 
   /* a deadline that passed BEFORE the week on screen still surfaces */
-  const nextWeek = V.weekDates(TXNS, '2026-08-10', '2026-08-16', 'UTC');
+  /* Relative, not hardcoded. inYear('08-10') to inYear('08-16') was a future window
+     when it was written and is the CURRENT week now, so YESTERDAY sits inside
+     it and the !inWeek assertion inverts. */
+  const nextWeek = V.weekDates(TXNS, plus(TODAY, 7), plus(TODAY, 13), TZ);
   t.ok(nextWeek.some(d => d.label === 'overdue-one' && d.overdue && !d.inWeek),
-    'an overdue date from a past week is carried into the next week\'s huddle, flagged as overdue');
+    'an overdue date from a past week is carried into a later week\'s huddle, flagged as overdue');
 
   /* ==================================================================== 7
      capPaidBefore() FILTERS TO THE CAP PERIOD.
@@ -361,13 +386,13 @@ export default async function run(t) {
      writes the result, the wrong capContribution was persisted to the record. */
   const plan = USERS[0].plan;                       // calendar-year cap, 12,000
   const priorYear = { id: 't-2025', owner_id: 'u-a', status: 'closed',
-    closeDate: '2025-11-01', closedActual: '2025-11-01', capContribution: 11000,
+    closeDate: inPrior('11-01'), closedActual: inPrior('11-01'), capContribution: 11000,
     salePrice: 700000, commissionRate: 3 };
   const thisYear = { id: 't-2026a', owner_id: 'u-a', status: 'closed',
-    closeDate: '2026-02-01', closedActual: '2026-02-01', capContribution: 1000,
+    closeDate: inYear('02-01'), closedActual: inYear('02-01'), capContribution: 1000,
     salePrice: 300000, commissionRate: 3 };
   const subject = { id: 't-2026b', owner_id: 'u-a', status: 'active',
-    closeDate: '2026-09-01', salePrice: 400000, commissionRate: 3 };
+    closeDate: inYear('09-01'), salePrice: 400000, commissionRate: 3 };
   const capCtx = {
     settings: S, todayIso: TODAY,
     users_by_id: { 'u-a': USERS[0] },
@@ -375,7 +400,7 @@ export default async function run(t) {
   };
   t.eq(V.capPaidBefore(capCtx, subject), 1000,
     'only the 1,000 paid THIS cap period counts — last year\'s 11,000 does not');
-  t.ok(V.capPeriod('2025-11-01', plan).label !== V.capPeriod('2026-02-01', plan).label,
+  t.ok(V.capPeriod(inPrior('11-01'), plan).label !== V.capPeriod(inYear('02-01'), plan).label,
     'those two closings really are in different cap periods');
   /* and the consequence: without the filter this deal would price as capped out */
   const wrong = V.computeCommission(subject, plan, { capPaidToDate: 12000 });
@@ -386,10 +411,10 @@ export default async function run(t) {
 
   /* same-day determinism: strict `<` on the date alone meant two deals closing
      on the same day never saw each other and both used the same cap balance */
-  const sameA = { id: 'aaa', owner_id: 'u-a', status: 'closed', closeDate: '2026-03-01',
-    closedActual: '2026-03-01', capContribution: 2000, salePrice: 300000, commissionRate: 3 };
-  const sameB = { id: 'bbb', owner_id: 'u-a', status: 'closed', closeDate: '2026-03-01',
-    closedActual: '2026-03-01', capContribution: 2000, salePrice: 300000, commissionRate: 3 };
+  const sameA = { id: 'aaa', owner_id: 'u-a', status: 'closed', closeDate: inYear('03-01'),
+    closedActual: inYear('03-01'), capContribution: 2000, salePrice: 300000, commissionRate: 3 };
+  const sameB = { id: 'bbb', owner_id: 'u-a', status: 'closed', closeDate: inYear('03-01'),
+    closedActual: inYear('03-01'), capContribution: 2000, salePrice: 300000, commissionRate: 3 };
   const sameCtx = { ...capCtx, transactions: [sameA, sameB] };
   t.eq(V.capPaidBefore(sameCtx, sameA), 0, 'the first of two same-day closings starts from nothing');
   t.eq(V.capPaidBefore(sameCtx, sameB), 2000, 'and the second sees the first — they no longer share a cap balance');
@@ -398,12 +423,12 @@ export default async function run(t) {
 
   /* capPaidBefore reads closedOn(), so a deal that closed late lands in the
      period it actually closed in, not the one it was scheduled for */
-  t.eq(V.closedOn({ closeDate: '2025-12-30', closedActual: '2026-01-05' }), '2026-01-05',
+  t.eq(V.closedOn({ closeDate: inPrior('12-30'), closedActual: inYear('01-05') }), inYear('01-05'),
     'the actual close date wins over the scheduled one');
-  t.eq(V.onClosedDate({ closeDate: '2025-12-30', closedActual: '2026-01-05' }).closeDate, '2026-01-05',
+  t.eq(V.onClosedDate({ closeDate: inPrior('12-30'), closedActual: inYear('01-05') }).closeDate, inYear('01-05'),
     'and the cap engine is handed that date, so both screens agree on the period');
   const late = { id: 't-late', owner_id: 'u-a', status: 'closed',
-    closeDate: '2025-12-30', closedActual: '2026-01-05', capContribution: 500 };
+    closeDate: inPrior('12-30'), closedActual: inYear('01-05'), capContribution: 500 };
   t.eq(V.capPaidBefore({ ...capCtx, transactions: [late, subject] }, subject), 500,
     'a deal scheduled for December but closed in January counts against the January cap period');
 

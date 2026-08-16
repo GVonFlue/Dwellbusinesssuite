@@ -15,9 +15,7 @@
    ============================================================ */
 
 const val = (v, d) => { const s = (v ?? '').toString().trim(); return s ? s : d; };
-const slug = s => (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '') || 'crm';
-
-const NAME = val(import.meta.env.VITE_BRAND_NAME, 'Summit & Vine Realty');
+const NAME = val(import.meta.env.VITE_BRAND_NAME, 'Dwell Real Estate Group');
 
 /* The product name, shown at the top of every screen. The client's own brand
    lives in the sidebar; this is ours and it stays put. */
@@ -32,11 +30,21 @@ export const BRAND = {
   id:       val(import.meta.env.VITE_BRAND_ID, 'proytech'),
   name:     NAME,
   title:    val(import.meta.env.VITE_APP_TITLE, NAME + ' — ProyTech Business Suite'),
-  short:    val(import.meta.env.VITE_BRAND_SHORT, 'Summit & Vine'),
+  short:    val(import.meta.env.VITE_BRAND_SHORT, 'dwellWICHITA'),
+
+  /* NOTE: the sidebar mark is no longer read from here. It is hard-coded in
+     src/lib/assets.js (ASSETS.clientLogo) for this install. VITE_LOGO_URL is
+     kept so the shared template still works, but nothing in the UI reads it. */
   logo:     val(import.meta.env.VITE_LOGO_URL, ''),
 
-  /* sign-in maps a bare username -> username@<authDomain> in Supabase Auth */
-  authDomain: val(import.meta.env.VITE_AUTH_DOMAIN, slug(NAME) + '.app'),
+  /* Sign-in maps a bare username -> username@<authDomain> in Supabase Auth.
+
+     PINNED ON PURPOSE — do not derive this from NAME. Deriving it means that
+     renaming the brand silently changes the address every bare-username login
+     resolves to, and everyone who signs in with a username instead of a full
+     email is locked out with a wrong-password error. Move it deliberately by
+     setting VITE_AUTH_DOMAIN in Vercel, never by editing the brand name. */
+  authDomain: val(import.meta.env.VITE_AUTH_DOMAIN, 'summitandvine.app'),
 
   /* sidebar footer */
   tagline:    val(import.meta.env.VITE_TAGLINE, 'No deadline lives outside the Suite.'),
@@ -63,7 +71,7 @@ export const BRAND = {
   biz: {
     name:    val(import.meta.env.VITE_BIZ_NAME, NAME),
     address: val(import.meta.env.VITE_BIZ_ADDRESS, '150 N Main St\nWichita, KS 67202').replace(/\\n/g, '\n'),
-    email:   val(import.meta.env.VITE_BIZ_EMAIL, 'hello@summitandvine.test'),
+    email:   val(import.meta.env.VITE_BIZ_EMAIL, 'hello@dwellwichita.test'),
     phone:   val(import.meta.env.VITE_BIZ_PHONE, '(316) 555-0140'),
     license: val(import.meta.env.VITE_BIZ_LICENSE, ''),
   },

@@ -50,14 +50,48 @@ export default async function run(t, { mount, tick, dom }) {
   t.ok(document.querySelector('.demo-bar'), 'the demo banner is present');
   t.ok(/data resets on refresh/i.test(text()), 'and says the data resets on refresh');
   t.ok(document.querySelector('.viewas'), 'the View-as switcher is present — the only way to show per-seat behaviour without accounts');
-  t.ok(/Dana/.test(text()), 'signed in as the seeded team leader');
+  /* The demo boots as the leader. Read the name off the screen rather than
+     hardcoding it: the demo leader is rebranded per install (Jeff Schnell on
+     the Dwell build, Dana Whitfield on the template) and a literal here turns
+     a branding change into a red test for no reason. src/lib/seed.js cannot be
+     imported directly — it uses extensionless bundler imports and this file
+     runs in raw Node ESM. */
+  const leaderName = ((document.querySelector('.sb-me b') || {}).textContent || '').trim();
+  const LEADER_FIRST = leaderName.split(/\s+/)[0] || '';
+  t.ok(LEADER_FIRST.length > 1, `signed in as the seeded team leader (${leaderName || 'nobody'})`);
+  t.ok(/leader/i.test((document.querySelector('.sb-me > div > span') || {}).textContent || ''),
+    'and labelled as the leader, not an agent');
 
   /* the account block is pinned to the bottom of the sidebar and always present,
      so it can never be pushed off-screen by a long nav list */
   t.ok(document.querySelector('.sb-foot'), 'the sidebar has a pinned footer');
   t.ok(document.querySelector('.sb-out'), 'with a sign-out control in it');
-  t.ok(document.querySelector('.sb-av'), 'and the signed-in seat, by initials');
+  t.ok(document.querySelector('.sb-av'), 'and the signed-in seat');
   t.ok(document.querySelector('.sb-nav'), 'the nav list is its own scroll area');
+
+  /* ------------------------------------------------------- hard-coded brand
+     These four are the whole point of the Dwell skin, and every one of them is
+     the kind of thing that breaks silently: an image path typo renders a broken
+     icon, not an error, and nobody notices until the client does. */
+  const sbLogo = document.querySelector('.sb-brand .sb-logo');
+  t.ok(sbLogo, "the client's mark is in the sidebar");
+  t.ok(sbLogo && /\/brand\/dwell-logo\.png$/.test(sbLogo.getAttribute('src') || ''),
+    'and it points at the hard-coded asset, not an env var');
+  t.ok(/business suite/i.test((document.querySelector('.sb-suite') || {}).textContent || ''),
+    'with the product line stacked underneath it');
+
+  const suiteLogo = document.querySelector('.suite-bar .suite-logo img');
+  t.ok(suiteLogo, 'our own mark is in the bar across the top');
+  t.ok(suiteLogo && /\/brand\/proytech-logo\.png$/.test(suiteLogo.getAttribute('src') || ''),
+    'and it points at the hard-coded asset');
+  t.ok(/business suite/i.test((document.querySelector('.suite-name') || {}).textContent || ''),
+    'with "Business Suite" beside it');
+
+  /* the leader seat carries a real headshot; see src/lib/people.js */
+  const leaderAv = document.querySelector('.sb-av');
+  t.ok(leaderAv && leaderAv.classList.contains('has-photo'),
+    'the leader seat renders a headshot rather than initials');
+  t.ok(leaderAv && leaderAv.querySelector('img'), 'as an <img> inside the circle');
 
   /* ------------------------------------------------- every tab, as the leader */
   const navLabels = q('.sb .nav-i').map(b => (b.textContent || '').trim()).filter(Boolean);
@@ -184,6 +218,14 @@ export default async function run(t, { mount, tick, dom }) {
   t.ok(/Marcus/.test(document.querySelector('.sb-foot').textContent || ''), 'the app is now that agent');
   t.ok(/Agent/.test(document.querySelector('.sb-foot').textContent || ''), 'labelled as an agent, not a leader');
 
+  /* The whole reason the headshot is a lookup and not a hardcoded <img>: an
+     agent's seat must show their OWN initials, never the owner's face. */
+  const agentAv = document.querySelector('.sb-av');
+  t.ok(agentAv && !agentAv.classList.contains('has-photo'),
+    "an agent's seat falls back to initials — the owner's headshot does not follow the sidebar");
+  t.ok(agentAv && !agentAv.querySelector('img'), 'and renders no image at all');
+  t.ok(/MB/.test((agentAv || {}).textContent || ''), 'their own initials, specifically');
+
   const agentNav = q('.sb .nav-i').map(b => (b.textContent || '').trim());
   t.ok(!agentNav.some(l => /Settings/i.test(l)), 'an agent gets no Settings section');
   t.ok(agentNav.length < navLabels.length, 'and a narrower nav than the leader');
@@ -234,8 +276,9 @@ export default async function run(t, { mount, tick, dom }) {
   }
 
   /* ---------------------------------------------- and back as the leader --- */
-  const danaBtn = q('.viewas button').find(b => /Dana/i.test(b.textContent || ''));
-  await click(danaBtn);
+  const leaderBtn = q('.viewas button').find(b => (b.textContent || '').toLowerCase().includes(LEADER_FIRST.toLowerCase()));
+  t.ok(!!leaderBtn, 'the leader is offered in the View-as switcher');
+  await click(leaderBtn);
   await waitFor(() => q('.sb .nav-i').some(b => /Settings/i.test(b.textContent || '')), 'the switch back to the leader');
   await tick(150);
   t.ok(q('.sb .nav-i').some(b => /Settings/i.test(b.textContent || '')), 'switching back restores the leader nav');

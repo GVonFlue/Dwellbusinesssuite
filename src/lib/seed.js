@@ -18,18 +18,18 @@ const d = (base, n) => addDays(base, n);
 
 export const DEMO_USERS = [
   {
-    id: 'u-leader', name: 'Dana Whitfield', email: 'dana@summitandvine.test', role: 'leader', active: true,
+    id: 'u-leader', name: 'Jeff Schnell', email: 'jeff@dwellwichita.test', role: 'leader', active: true,
     sections: [], permissions: {}, pools: [],
     plan: { keepPct: 100, cap: 0, postCapPct: 100, postCapFee: 0, teamPct: 0, teamOrder: 'team-first', fees: [], capCadence: 'calendar' },
   },
   {
-    id: 'u-marcus', name: 'Marcus Bell', email: 'marcus@summitandvine.test', role: 'agent', active: true,
+    id: 'u-marcus', name: 'Marcus Bell', email: 'marcus@dwellwichita.test', role: 'agent', active: true,
     sections: [], pools: ['house'],
     permissions: { seeTeamPipeline: false, seeOtherContacts: false, seeTeamCommission: false, seeOtherCommission: false, books: true, editOwnSplit: false, createPools: false, exportData: false },
     plan: { keepPct: 85, cap: 12000, postCapPct: 100, postCapFee: 285, teamPct: 10, teamOrder: 'team-first', fees: [{ label: 'E&O', type: 'flat', value: 45 }], capCadence: 'calendar' },
   },
   {
-    id: 'u-priya', name: 'Priya Raman', email: 'priya@summitandvine.test', role: 'agent', active: true,
+    id: 'u-priya', name: 'Priya Raman', email: 'priya@dwellwichita.test', role: 'agent', active: true,
     sections: [], pools: ['house'],
     permissions: { seeTeamPipeline: true, seeOtherContacts: false, seeTeamCommission: false, seeOtherCommission: false, books: true, editOwnSplit: false, createPools: false, exportData: true },
     plan: { keepPct: 80, cap: 10000, postCapPct: 100, postCapFee: 285, teamPct: 0, teamOrder: 'team-first', fees: [{ label: 'E&O', type: 'flat', value: 45 }], capCadence: 'calendar' },
@@ -37,18 +37,18 @@ export const DEMO_USERS = [
   {
     /* the transaction coordinator: works every closing, sees no money.
        Not a permission toggle — a role, enforced in MIGRATION.sql. */
-    id: 'u-robin', name: 'Robin Castellano', email: 'robin@summitandvine.test', role: 'coordinator', active: true,
+    id: 'u-robin', name: 'Robin Castellano', email: 'robin@dwellwichita.test', role: 'coordinator', active: true,
     sections: [], pools: [], permissions: {},
     plan: {},
   },
   {
-    id: 'u-tom', name: 'Tom Ruiz', email: 'tom@summitandvine.test', role: 'agent', active: false,
+    id: 'u-tom', name: 'Tom Ruiz', email: 'tom@dwellwichita.test', role: 'agent', active: false,
     sections: [], pools: [], permissions: {},
     plan: { keepPct: 80, cap: 10000, postCapPct: 100, postCapFee: 285, teamPct: 0, teamOrder: 'team-first', fees: [], capCadence: 'calendar' },
   },
 ];
 
-export const DEMO_ACCOUNT = { id: 'main', name: 'Summit & Vine Realty', seat_limit: 5, contact_url: 'mailto:hello@getproytech.com?subject=Add%20a%20seat' };
+export const DEMO_ACCOUNT = { id: 'main', name: 'Dwell Real Estate Group', seat_limit: 5, contact_url: 'mailto:hello@getproytech.com?subject=Add%20a%20seat' };
 
 /* ------------------------------------------------------------------ contacts
    [name, side, stage, source, owner, priceLow, priceHigh, timeline, daysSinceTouch] */
