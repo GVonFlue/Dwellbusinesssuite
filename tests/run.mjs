@@ -72,6 +72,12 @@ if (!only || only === 'commission') {
   await mod.default(t);
 }
 
+if (!only || only === 'activity') {
+  header('activity — what happened, what a person did, and the scan that keeps them apart');
+  const mod = await import('./activity.test.mjs');
+  await mod.default(t);
+}
+
 if (!only || only === 'tasks') {
   header('tasks — the buckets a day gets worked in');
   const mod = await import('./tasks.test.mjs');

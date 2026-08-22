@@ -12,7 +12,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
-  Bot, ListTodo, LayoutDashboard, KanbanSquare, Contact2, Building2, FileText, DollarSign,
+  Activity, Bot, ListTodo, LayoutDashboard, KanbanSquare, Contact2, Building2, FileText, DollarSign,
   BookText, Sparkles, CalendarCheck, Settings as SettingsIcon, Menu, LogOut,
   Loader2, AlertTriangle, ShieldCheck, RotateCcw, Plane,
 } from 'lucide-react';
@@ -29,6 +29,7 @@ import { uid, initials } from './lib/format';
 import { Card, Btn, Field, Inp } from './components/ui';
 
 import Assistant from './views/Assistant';
+import ActivityView from './views/ActivityView';
 import Tasks from './views/Tasks';
 import Dashboard from './views/Dashboard';
 import PCS from './views/PCS';
@@ -43,13 +44,13 @@ import Huddle from './views/Huddle';
 import SettingsView from './views/Settings';
 
 const ICONS = {
-  assistant: Bot, tasks: ListTodo,
+  assistant: Bot, tasks: ListTodo, activity: Activity,
   dashboard: LayoutDashboard, pcs: Plane, pipeline: KanbanSquare, contacts: Contact2,
   transactions: Building2, contracts: FileText, commission: DollarSign,
   books: BookText, tools: Sparkles, huddle: CalendarCheck, settings: SettingsIcon,
 };
 const VIEWS = {
-  assistant: Assistant, tasks: Tasks,
+  assistant: Assistant, tasks: Tasks, activity: ActivityView,
   dashboard: Dashboard, pcs: PCS, pipeline: Pipeline, contacts: Contacts,
   transactions: Transactions, contracts: Contracts, commission: Commission,
   books: Books, tools: Tools, huddle: Huddle, settings: SettingsView,
