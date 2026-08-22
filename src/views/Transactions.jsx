@@ -35,20 +35,12 @@ import {
 } from '../lib/dates';
 import { computeCommission, agentPlan, capPeriod, usd } from '../lib/commission';
 import { uid, initials, sum } from '../lib/format';
-import { closedOn } from './Dashboard';
+import { closedOn, txGross } from '../lib/txn';
+
 
 /* -------------------------------------------------------------------------- */
 
 /* a neutral plan: gross is plan-independent, but computeCommission wants one */
-const FLAT_PLAN = agentPlan({ keepPct: 100, cap: 0, teamPct: 0, fees: [] });
-/** gross on a transaction: the snapshot if there is one, else the engine.
-    Dragging a card into the Closed column closes the deal WITHOUT writing a
-    snapshot, and reading the snapshot alone reported those as $0 of GCI. */
-export function txGross(t) {
-  const snap = t && t.commissionSnapshot && Number(t.commissionSnapshot.gross);
-  if (Number.isFinite(snap) && snap > 0) return snap;
-  return computeCommission(t || {}, FLAT_PLAN, { capPaidToDate: 0 }).gross;
-}
 /** true when the figure shown is computed now rather than snapshotted at close */
 const isEstimated = t => {
   const snap = t && t.commissionSnapshot && Number(t.commissionSnapshot.gross);

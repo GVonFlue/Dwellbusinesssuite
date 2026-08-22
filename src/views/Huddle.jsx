@@ -46,18 +46,13 @@ import { apptCounts, checklistFor, stagesOf } from '../lib/settings';
 import { computeCommission, agentPlan } from '../lib/commission';
 import { usd } from '../lib/format';
 import { apiPost } from '../lib/data';
+import { closedOn, txGross } from '../lib/txn';
 
 /* a neutral plan: gross is plan-independent, but computeCommission wants one.
    Going through the engine means one definition of "gross" exists app-wide. */
-const FLAT_PLAN = agentPlan({ keepPct: 100, cap: 0, teamPct: 0, fees: [] });
 /** gross on a transaction: the snapshot if there is one, else the engine.
     A deal closed by dragging it into the Closed column never writes a snapshot,
     and reading the snapshot alone reported those as $0 of GCI. */
-const txGross = t => {
-  const snap = t && t.commissionSnapshot && Number(t.commissionSnapshot.gross);
-  if (Number.isFinite(snap) && snap > 0) return snap;
-  return computeCommission(t || {}, FLAT_PLAN, { capPaidToDate: 0 }).gross;
-};
 
 /* ------------------------------------------------------------------ plumbing */
 
@@ -170,8 +165,12 @@ export function weekNumbers(contacts, transactions, from, to, settings, opts) {
 
   (transactions || []).forEach(t => {
     if (within(t.effectiveDate, from, to)) ucList.push({ id: t.id, txn: t, at: t.effectiveDate });
-    const closedOn = t.closedActual || t.closeDate;
-    if (t.status === 'closed' && within(closedOn, from, to)) closedList.push({ id: t.id, txn: t, at: closedOn });
+    /* closedOn() from lib/txn, not a local `t.closedActual || t.closeDate`.
+       The local one skipped the normalisation the shared one applies, so the
+       two screens agreed only for as long as every writer stored a plain
+       YYYY-MM-DD. */
+    const closedAt = closedOn(t);
+    if (t.status === 'closed' && within(closedAt, from, to)) closedList.push({ id: t.id, txn: t, at: closedAt });
     if (t.status === 'fell' && within(t.fellAt, from, to)) fellList.push({ id: t.id, txn: t, at: t.fellAt });
   });
 

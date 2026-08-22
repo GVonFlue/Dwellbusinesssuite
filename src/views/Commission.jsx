@@ -29,7 +29,7 @@ import { addDays, fmtLong, fmtShort, isDate } from '../lib/dates';
 import { sum, uniq, usd, usdc } from '../lib/format';
 import { phasesOf } from '../lib/settings';
 import { Btn, Card, Empty, Kpi, Pill, SecTitle, Seg, Sel, SideChip, Tag } from '../components/ui';
-import { closedOn, onClosedDate } from './Dashboard';
+import { closedOn, onClosedDate } from '../lib/txn';
 
 /* ------------------------------------------------------------- helpers ----- */
 
