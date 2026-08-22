@@ -1241,4 +1241,33 @@ button,a,label,select,input,textarea,.kcard,.fu-card,.cli-card,.rt-person,.msec-
    settings card the arrows sit on white, so give them the light treatment. */
 .set-row .nav-mv button{border-color:#E1E2EC;background:#F1F2F8;color:#56527a}
 .set-row .nav-mv button:hover:not(:disabled){border-color:${COBALT};color:${COBALT}}
+
+/* ---------------------------------------------------------------- tasks --- */
+.tk-add{display:grid;grid-template-columns:1fr 170px auto;gap:9px;align-items:center}
+@media(max-width:640px){.tk-add{grid-template-columns:1fr}}
+.tk-grp{margin-top:14px}
+.tk-grp:first-child{margin-top:2px}
+.tk-grp-h{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;
+  letter-spacing:.06em;text-transform:uppercase;color:#8E89A8;margin-bottom:7px}
+.tk-grp-h.late{color:#B03030}
+.tk-grp-n{background:#EEF0F7;color:#56527a;border-radius:20px;padding:0 7px;font-size:11px}
+.tk-grp-h.late .tk-grp-n{background:#F7DED9;color:#8E2B22}
+.tk-row{display:flex;align-items:flex-start;gap:10px;padding:9px 10px;border-radius:10px;
+  border:1px solid #EEEFF6;background:#fff;margin-bottom:6px}
+.tk-row:hover{border-color:#D8D9E6}
+.tk-check{border:0;background:none;cursor:pointer;color:#C9C5D9;padding:0;margin-top:1px;flex:none}
+.tk-check:hover{color:${COBALT}}
+.tk-mid{flex:1;min-width:0}
+.tk-title{font-size:13.5px;font-weight:600;color:${INK};line-height:1.35}
+.tk-title.done{text-decoration:line-through;color:#9B98AD;font-weight:500}
+.tk-meta{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:4px;font-size:11.5px}
+.tk-due{font-weight:650;color:#6B6885}
+.tk-due.late{color:#B03030}
+.tk-due.none{color:#A6A2BC;font-style:italic}
+.tk-origin{display:inline-flex;align-items:center;gap:4px;border:1px solid #E4E5EF;background:#F7F8FC;
+  color:#56527a;border-radius:20px;padding:1px 8px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit}
+.tk-origin:hover{border-color:${COBALT};color:${COBALT}}
+.tk-note{color:#8E89A8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:340px}
+.tk-del{border:0;background:none;color:#C9C5D9;cursor:pointer;padding:2px;flex:none}
+.tk-del:hover{color:#B03030}
 `;
