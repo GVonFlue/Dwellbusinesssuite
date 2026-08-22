@@ -37,6 +37,7 @@ import {
 } from '../lib/dates';
 import { usd } from '../lib/commission';
 import { uid } from '../lib/format';
+import { apiPost } from '../lib/data';
 
 /* -------------------------------------------------------------------------- */
 
@@ -59,10 +60,9 @@ export default function Contracts({ ctx }) {
     setErr(''); setStage('reading');
     try {
       const b64 = await toBase64(file);
-      const r = await fetch('/api/extract-contract', {
-        method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ pdf: b64, isAddendum, knownAddress: txn ? txn.address : '', model: ctx.settings.contracts?.model }),
-      }).then(x => x.json()).catch(() => ({ ok: false, reason: 'network' }));
+      const r = await apiPost('/api/extract-contract',
+        { pdf: b64, isAddendum, knownAddress: txn ? txn.address : '', model: ctx.settings.contracts?.model })
+        .then(x => x.json()).catch(() => ({ ok: false, reason: 'network' }));
 
       if (!r.ok) { setErr(reasonText(r)); setStage('idle'); return; }
       setResult(r.data);
@@ -600,14 +600,11 @@ async function syncCalendar(txn, ctx) {
   const next = (txn.deadlines || []).slice();
   for (const d of list) {
     try {
-      const r = await fetch('/api/calendar-event', {
-        method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          eventId: d.eventId || undefined,
-          summary: `${d.label} — ${String(txn.address).split(',')[0]}`,
-          description: [d.rule, d.quote ? `Contract: “${d.quote}”` : '', d.explain].filter(Boolean).join('\n'),
-          date: d.date, allDay: true,
-        }),
+      const r = await apiPost('/api/calendar-event', {
+        eventId: d.eventId || undefined,
+        summary: `${d.label} — ${String(txn.address).split(',')[0]}`,
+        description: [d.rule, d.quote ? `Contract: “${d.quote}”` : '', d.explain].filter(Boolean).join('\n'),
+        date: d.date, allDay: true,
       }).then(x => x.json()).catch(() => null);
       if (r && r.id) {
         const i = next.findIndex(x => x.key === d.key);

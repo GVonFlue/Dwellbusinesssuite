@@ -1,9 +1,19 @@
+import { guard, sweep } from './_guard.js';
 // Vercel serverless function — ranks the open task list with Claude.
 // Requires env var ANTHROPIC_API_KEY (already set in Vercel for parse-receipt.js).
 // The key NEVER reaches the browser; it only lives here on the server.
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') { res.status(405).json({ error: 'POST only' }); return; }
+  /* one press re-ranks the whole list; nobody needs it thirty times in ten minutes. Signed-in users only: before this, anyone who found
+     the URL could spend this install's Anthropic key. */
+  const gate = await guard(req, res, {
+    name: 'rank-tasks', perIp: 30, windowMin: 10, perDay: 900,
+    maxChars: 60000, requireAuth: true,
+  });
+  if (!gate.ok) return;
+  sweep();
+
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) { res.status(200).json({ ok: false, error: 'AI not configured' }); return; }
 

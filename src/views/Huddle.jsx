@@ -45,6 +45,7 @@ import { addDays, dow, isDate, fmtLong, fmtShort, daysUntil, urgency, effectiveD
 import { apptCounts, checklistFor, stagesOf } from '../lib/settings';
 import { computeCommission, agentPlan } from '../lib/commission';
 import { usd } from '../lib/format';
+import { apiPost } from '../lib/data';
 
 /* a neutral plan: gross is plan-independent, but computeCommission wants one.
    Going through the engine means one definition of "gross" exists app-wide. */
@@ -74,10 +75,7 @@ const reasonText = j => (j && (REASONS[j.reason] || j.detail)) || 'That did not 
 
 async function callAi(job, payload) {
   try {
-    const r = await fetch('/api/ai', {
-      method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ job, payload }),
-    });
+    const r = await apiPost('/api/ai', { job, payload });
     const j = await r.json();
     return j && typeof j === 'object' ? j : { ok: false, reason: 'bad_response' };
   } catch (e) {

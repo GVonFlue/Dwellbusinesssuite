@@ -1,3 +1,4 @@
+import { guard, sweep } from './_guard.js';
 /* ============================================================================
    POST /api/parse-receipt — reads a receipt (image or PDF) and returns fields.
 
@@ -33,6 +34,15 @@ function parseStrict(text) {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'POST only' });
+  /* a receipt photo arrives base64-encoded, so maxChars is sized for an image rather than for text. Signed-in users only: before this, anyone who found
+     the URL could spend this install's Anthropic key. */
+  const gate = await guard(req, res, {
+    name: 'parse-receipt', perIp: 30, windowMin: 10, perDay: 900,
+    maxChars: 8000000, requireAuth: true,
+  });
+  if (!gate.ok) return;
+  sweep();
+
 
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) return res.status(200).json({ ok: false, reason: 'not_configured' });

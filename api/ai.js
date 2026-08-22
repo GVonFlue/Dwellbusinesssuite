@@ -1,3 +1,4 @@
+import { guard, sweep } from './_guard.js';
 /* ============================================================================
    POST /api/ai — one route, several jobs.
 
@@ -470,6 +471,15 @@ const JOBS = {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') { res.status(405).json({ ok: false, reason: 'method', error: 'POST only' }); return; }
+  /* net sheets and offer comparisons — several per listing appointment, so perIp is generous. Signed-in users only: before this, anyone who found
+     the URL could spend this install's Anthropic key. */
+  const gate = await guard(req, res, {
+    name: 'ai', perIp: 40, windowMin: 10, perDay: 1500,
+    maxChars: 200000, requireAuth: true,
+  });
+  if (!gate.ok) return;
+  sweep();
+
 
   const key = process.env.ANTHROPIC_API_KEY;
 
