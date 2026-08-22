@@ -9,3 +9,6 @@ dist/
 !.env.example
 .DS_Store
 .vercel/
+
+# the test runner's scratch bundles
+.test-build/
