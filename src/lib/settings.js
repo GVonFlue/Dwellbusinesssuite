@@ -205,6 +205,7 @@ export const SECTIONS = [
      it — which is what the scoping suite caught the moment I tried. */
   { key: 'assistant',    label: 'Assistant' },
   { key: 'tasks',        label: 'Tasks' },
+  { key: 'activity',     label: 'Activity' },
   { key: 'pcs',          label: 'PCS / Relocation' },
   { key: 'pipeline',     label: 'Pipeline' },
   { key: 'contacts',     label: 'Contacts' },
@@ -216,7 +217,7 @@ export const SECTIONS = [
   { key: 'huddle',       label: 'Monday Huddle' },
   { key: 'settings',     label: 'Settings', leaderOnly: true },
 ];
-export const DEFAULT_AGENT_SECTIONS = ['dashboard', 'assistant', 'tasks', 'pcs', 'pipeline', 'contacts', 'transactions', 'contracts', 'commission', 'books', 'tools'];
+export const DEFAULT_AGENT_SECTIONS = ['dashboard', 'assistant', 'tasks', 'activity', 'activity', 'pcs', 'pipeline', 'contacts', 'transactions', 'contracts', 'commission', 'books', 'tools'];
 /* A transaction coordinator works the closing pipeline and the dates. They see
    no commission and no expenses — not by a toggle, by policy (MIGRATION.sql). */
 export const DEFAULT_COORDINATOR_SECTIONS = ['dashboard', 'assistant', 'tasks', 'pcs', 'pipeline', 'contacts', 'transactions', 'contracts', 'tools'];

@@ -1270,4 +1270,27 @@ button,a,label,select,input,textarea,.kcard,.fu-card,.cli-card,.rt-person,.msec-
 .tk-note{color:#8E89A8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:340px}
 .tk-del{border:0;background:none;color:#C9C5D9;cursor:pointer;padding:2px;flex:none}
 .tk-del:hover{color:#B03030}
+
+/* ------------------------------------------------------------- activity --- */
+.ac-range{font-size:11.5px;color:#8E89A8;margin-bottom:10px}
+.ac-day{margin-top:14px}
+.ac-day:first-of-type{margin-top:2px}
+.ac-day-h{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;
+  letter-spacing:.06em;text-transform:uppercase;color:#8E89A8;margin-bottom:7px}
+.ac-day-n{background:#EEF0F7;color:#56527a;border-radius:20px;padding:0 7px;font-size:11px}
+.ac-row{display:flex;gap:10px;padding:8px 10px;border-radius:10px;border:1px solid #EEEFF6;
+  background:#fff;margin-bottom:6px}
+.ac-row.machine{background:#FAFAFD;border-style:dashed}
+.ac-ic{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:8px;
+  background:#F1F2F8;color:${COBALT}}
+.ac-row.machine .ac-ic{color:#A6A2BC}
+.ac-mid{flex:1;min-width:0}
+.ac-note{font-size:13.5px;color:${INK};line-height:1.4}
+.ac-row.machine .ac-note{color:#6B6885}
+.ac-meta{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:3px;font-size:11.5px}
+.ac-kind{font-weight:700;color:#8E89A8}
+.ac-link{border:0;background:none;padding:0;font:inherit;font-size:11.5px;font-weight:650;
+  color:${COBALT};cursor:pointer}
+.ac-link:hover{text-decoration:underline}
+.ac-by{color:#8E89A8}
 `;
