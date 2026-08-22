@@ -1,8 +1,18 @@
 # Two screens forecast a different price for the same contact
 
-**Status:** open. Found while consolidating `txGross` and `closedOn`, by a check
-written to stop those coming back. **Not fixed** — it moves numbers, and the
-numbers should be measured first.
+> **RESOLVED.** `forecastPrice` is deleted; Dashboard uses `expectedPrice`.
+> Measured first, and the measurement changed the story: on the seeded dataset
+> — 47 contacts, 33 with a price range and no target — the two functions
+> disagreed **zero** times, because every price range sums even. They differ
+> only when `priceMin + priceMax` is odd, which round price brackets never are.
+> `FORECAST-PRICE-MEASURE.sql` says the same for production data.
+>
+> So the defect was that two definitions existed, not that anyone saw a wrong
+> number. Still worth removing: the next edit to one of them would not have
+> been a rounding artefact.
+
+**Status:** found while consolidating `txGross` and `closedOn`, by a check
+written to stop those coming back.
 
 **This is the first live disagreement found in Dwell.** Everything else in the
 audit was duplication that happened to agree. These two do not.
