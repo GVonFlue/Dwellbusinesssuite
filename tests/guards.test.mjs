@@ -26,7 +26,12 @@ export default async function run(t) {
   const files = fs.readdirSync(apiDir).filter(f => f.endsWith('.js') && !f.startsWith('_'));
 
   const spenders = files.filter(f => read(path.join(apiDir, f)).includes('api.anthropic.com'));
-  t.ok(spenders.length >= 4, `found the routes that call Anthropic (${spenders.length})`);
+  /* Not a count. The first version of this asserted `>= 4` and broke the day a
+     dead endpoint was legitimately deleted — a test that fails when you remove
+     something is testing the wrong thing. What must hold is that the set is
+     non-empty (so a rename cannot silently empty it and pass vacuously) and
+     that EVERY member is guarded. */
+  t.ok(spenders.length > 0, `found the routes that call Anthropic (${spenders.join(', ')})`);
 
   for (const f of spenders) {
     const s = read(path.join(apiDir, f));
