@@ -1,5 +1,6 @@
 import { guard, sweep } from './_guard.js';
 import { costOf, spentThisMonth, logSpend } from './_spend.js';
+import { aiKey, logAiFailure } from './_aikey.js';
 
 // api/jarvis.js — the assistant.
 //
@@ -118,7 +119,7 @@ export default async function handler(req, res) {
   if (!gate.ok) return;
   sweep();
 
-  const key = process.env.ANTHROPIC_API_KEY;
+  const key = aiKey('jarvis');
   if (!key) { res.status(200).json({ ok: false, error: 'AI is not configured on this install.' }); return; }
 
   const body = req.body || {};
@@ -182,6 +183,7 @@ export default async function handler(req, res) {
     });
     const j = await r.json();
     if (!r.ok) {
+      logAiFailure('jarvis', r.status, j);
       // Message only. The body is never echoed back or logged — it contains
       // client data.
       res.status(200).json({ ok: false, error: (j && j.error && j.error.message) || 'The assistant is unavailable right now.' });

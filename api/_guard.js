@@ -30,6 +30,10 @@ const KEY  = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_RO
 
 /** Caller's IP. Vercel sets x-forwarded-for; take the FIRST entry — later ones
  *  are proxies and are trivially spoofable by the client. */
+/* The host only — never the key, never the token. Enough to see at a glance
+   whether two installs are pointed at the same project. */
+const hostOf = u => { try { return new URL(String(u)).host; } catch { return String(u).slice(0, 40); } };
+
 export function ipOf(req) {
   const xf = req.headers['x-forwarded-for'];
   if (typeof xf === 'string' && xf.length) return xf.split(',')[0].trim();
@@ -181,9 +185,35 @@ export async function guard(req, res, opts = {}) {
   if (needAuth) {
     const tok = String(req.headers.authorization || '').replace(/^Bearer /i, '');
     if (!tok) { res.status(401).json({ error: 'Sign in required.' }); return { ok: false }; }
-    const who = await fetch(`${SUPA}/auth/v1/user`, {
-      headers: { apikey: KEY, authorization: `Bearer ${tok}` },
-    }).then(r => (r.ok ? r.json() : null)).catch(() => null);
+    /* WHY THIS IS INSTRUMENTED.
+       Four different failures used to collapse into one "Session expired." and
+       one null: no SUPABASE_URL, no service key, a URL pointing at the wrong
+       project, and a token that really has expired. From the browser they are
+       indistinguishable, so diagnosing it meant guessing.
+
+       Loud on the server, unchanged to the caller — the same posture the daily
+       cap below already takes. Nothing here logs the token, the key, or any
+       part of either: only whether they were present, and what Supabase said. */
+    let who = null;
+    if (!SUPA || !KEY) {
+      console.error(`[guard] ${name}: cannot verify a session — `
+        + `${!SUPA ? 'SUPABASE_URL (or VITE_SUPABASE_URL) is not set' : 'SUPABASE_URL is set'}; `
+        + `${!KEY ? 'SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_SERVICE_KEY) is not set' : 'service key is set'}. `
+        + `Every guarded endpoint on this deployment will answer 401 until both exist.`);
+    } else {
+      let status = 0;
+      who = await fetch(`${SUPA}/auth/v1/user`, {
+        headers: { apikey: KEY, authorization: `Bearer ${tok}` },
+      }).then(r => { status = r.status; return r.ok ? r.json() : null; }).catch(e => {
+        console.error(`[guard] ${name}: could not reach ${hostOf(SUPA)}/auth/v1/user — ${e && e.message}`);
+        return null;
+      });
+      if (!who || !who.id) {
+        console.error(`[guard] ${name}: ${hostOf(SUPA)} rejected the token with HTTP ${status || 'no response'}. `
+          + `401 here usually means the token was issued by a DIFFERENT Supabase project than SUPABASE_URL points at, `
+          + `or the service key belongs to a different project; 403 usually means the key is not a service key.`);
+      }
+    }
     if (!who || !who.id) { res.status(401).json({ error: 'Session expired.' }); return { ok: false }; }
     user = who;
 
