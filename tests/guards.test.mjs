@@ -99,4 +99,61 @@ export default async function run(t) {
     t.ok(!/VITE_SUPABASE_SERVICE/.test(env),
       'while the service key has NO VITE_ fallback — that one would ship the key to the browser');
   }
+
+  /* ---- the diagnostics actually fire -------------------------------------
+     A log line nobody has seen print is a log line that does not print. These
+     drive the real functions with the real environment this box has (no
+     SUPABASE_URL, no service key, no Anthropic key) and assert both halves:
+     the server says which precondition failed, and the CALLER's message is
+     unchanged. */
+  const said = [];
+  const realError = console.error;
+  console.error = (...a) => said.push(a.join(' '));
+  try {
+    const { guard } = await import('../api/_guard.js?diag=1');
+    const req = { method: 'POST', headers: { authorization: 'Bearer not-a-real-token' }, body: {} };
+    let code = 0, sent = null;
+    const res = { status(c) { code = c; return this; }, json(b) { sent = b; return this; }, setHeader() {} };
+    const gate = await guard(req, res, { name: 'diagnostic-probe', requireAuth: true });
+
+    t.ok(gate.ok === false, 'the guard refuses when it cannot verify');
+    t.ok(code === 401 && sent && sent.error === 'Session expired.',
+      'and the caller still sees exactly "Session expired." — unchanged', JSON.stringify(sent));
+    /* names the ACTUAL variable, both halves. The first version of this
+       assertion looked for the words "service key", which only appear in the
+       branch where the key IS present — so it failed against a correct log
+       line. The log was right; the test was not. */
+    t.ok(said.some(l => /SUPABASE_URL/.test(l) && /SUPABASE_SERVICE_ROLE_KEY/.test(l)),
+      'while the SERVER log names both missing variables by name', said.join(' | ').slice(0, 220));
+    t.ok(said.some(l => /every guarded endpoint/i.test(l)),
+      'and says the whole deployment is affected, not just this route');
+
+    const { aiKey } = await import('../api/_aikey.js?diag=1');
+    said.length = 0;
+    const before = process.env.ANTHROPIC_API_KEY;
+    delete process.env.ANTHROPIC_API_KEY;
+    t.eq(aiKey('probe'), '', 'aiKey returns empty when the variable is unset');
+    t.ok(said.some(l => /NOT SET/.test(l)), 'and says NOT SET', said.join(' | '));
+
+    said.length = 0;
+    process.env.ANTHROPIC_API_KEY = '   ';
+    t.eq(aiKey('probe'), '', 'and when it is whitespace');
+    t.ok(said.some(l => /EMPTY/.test(l)), 'it says EMPTY, which is a different mistake', said.join(' | '));
+
+    said.length = 0;
+    process.env.ANTHROPIC_API_KEY = 'sk-ant-short';
+    t.ok(aiKey('probe') !== '', 'a short key is still returned — it might be valid');
+    t.ok(said.some(l => /truncated/.test(l)), 'but it is flagged as possibly truncated', said.join(' | '));
+
+    said.length = 0;
+    const { logAiFailure } = await import('../api/_aikey.js?diag=1');
+    logAiFailure('probe', 401, { error: { message: 'invalid x-api-key' } });
+    t.ok(said.some(l => /REJECTED/.test(l) && /invalid x-api-key/.test(l)),
+      'and a 401 from Anthropic reads as the key being rejected, not missing', said.join(' | '));
+
+    if (before === undefined) delete process.env.ANTHROPIC_API_KEY;
+    else process.env.ANTHROPIC_API_KEY = before;
+  } finally {
+    console.error = realError;
+  }
 }

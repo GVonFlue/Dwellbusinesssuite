@@ -1,4 +1,5 @@
 import { guard, sweep } from './_guard.js';
+import { aiKey, logAiFailure } from './_aikey.js';
 /* ============================================================================
    POST /api/parse-receipt — reads a receipt (image or PDF) and returns fields.
 
@@ -44,7 +45,7 @@ export default async function handler(req, res) {
   sweep();
 
 
-  const key = process.env.ANTHROPIC_API_KEY;
+  const key = aiKey('parse-receipt');
   if (!key) return res.status(200).json({ ok: false, reason: 'not_configured' });
 
   let body = req.body;
@@ -87,6 +88,7 @@ export default async function handler(req, res) {
       }),
     });
     const j = await r.json().catch(() => null);
+    if (!r.ok) logAiFailure('parse-receipt', r.status, j);
     if (!r.ok) return res.status(200).json({ ok: false, reason: 'api_error', status: r.status,
       detail: (j && (j.error?.message || j.message)) || 'The model call failed.' });
 

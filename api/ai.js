@@ -1,4 +1,5 @@
 import { guard, sweep } from './_guard.js';
+import { aiKey, logAiFailure } from './_aikey.js';
 /* ============================================================================
    POST /api/ai — one route, several jobs.
 
@@ -481,7 +482,7 @@ export default async function handler(req, res) {
   sweep();
 
 
-  const key = process.env.ANTHROPIC_API_KEY;
+  const key = aiKey('ai');
 
   let body = req.body;
   if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } }
@@ -528,6 +529,7 @@ export default async function handler(req, res) {
 
     if (!r.ok) {
       const raw = await r.text().catch(() => '');
+      try { logAiFailure('ai', r.status, JSON.parse(raw)); } catch { logAiFailure('ai', r.status, null); }
       let detail = raw.slice(0, 400);
       try { const j = JSON.parse(raw); detail = (j.error && j.error.message) || detail; } catch {}
       res.status(200).json({ ok: false, reason: 'api_error', status: r.status, detail, job, ...computed });
