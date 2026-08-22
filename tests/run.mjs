@@ -11,13 +11,16 @@
                      signed in, clicked through every section as the team leader
                      AND as an agent
 
-   jsdom is the only extra dependency and it is not in package.json on purpose
-   (the app does not need it). Install it when you want suite 4:
+   jsdom WAS kept out of package.json on purpose — the app itself does not need
+   it — and suite 4 skipped with a note when it was absent. That was defensible
+   while `npm test` was something a person chose to run. It stopped being
+   defensible the moment CI started gating pull requests on this command:
+   the suite that mounts the real application is 125 of the 419 checks, and a
+   run without it printed one dim line and said "All green".
 
-     npm i --no-save jsdom
-
-   Without jsdom the first three suites still run and the runner says which one
-   it skipped. esbuild comes with Vite, so nothing else is needed.
+   So jsdom is a devDependency now and a MISSING one is a failure, not a note.
+   esbuild is declared for the same reason: it arrived transitively through
+   Vite, which worked until the day Vite changed what it depends on.
    ========================================================================== */
 
 import { readFileSync, existsSync, mkdirSync, rmSync } from 'node:fs';
@@ -106,7 +109,13 @@ if (!only || only === 'app') {
   header('app — the real thing, mounted in jsdom');
   let JSDOM = null;
   try { ({ JSDOM } = await import('jsdom')); }
-  catch { t.note('jsdom is not installed — run `npm i --no-save jsdom` to include this suite'); }
+  catch {
+    /* Loud, not quiet. This suite carries the role-scoping assertions; skipping
+       it silently is how a red build looks green. */
+    fail++;
+    failures.push('app: jsdom is not installed — it is a devDependency, so `npm ci` should have provided it');
+    console.log(`  ${RED}✗ jsdom is missing — this suite could not run${OFF}`);
+  }
 
   if (JSDOM) {
     const esbuild = await import('esbuild');
