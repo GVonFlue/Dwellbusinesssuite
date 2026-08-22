@@ -21,7 +21,8 @@ import { stagesOf, stageOf, stageLabel, columnLabel, wonStage } from '../lib/set
 import { daysUntil, fmtShort, fmtLong } from '../lib/dates';
 import { computeCommission } from '../lib/commission';
 import { usd, uid, initials } from '../lib/format';
-import { ContactModal, expectedPrice } from './Contacts';
+import { ContactModal } from './Contacts';
+import { expectedPrice } from '../lib/txn';
 
 /* The commission rate used for a FORECAST, before a contract exists. It lives
    in settings (settings.forecastRate) so the pipeline and the dashboard cannot

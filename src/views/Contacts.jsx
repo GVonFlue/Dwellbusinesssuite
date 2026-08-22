@@ -29,6 +29,7 @@ import {
 } from '../lib/settings';
 import { addDays, daysUntil, fmtShort, fmtLong } from '../lib/dates';
 import { usd, uid, phoneFmt } from '../lib/format';
+import { expectedPrice } from '../lib/txn';
 
 /* ------------------------------------------------------------------ helpers */
 
@@ -65,14 +66,6 @@ const agoText = d => (d == null ? 'never' : d <= 0 ? 'today' : d === 1 ? 'yester
 const dueClass = n => (n == null ? 'far' : n < 0 ? 'over' : n === 0 ? 'today' : n <= 7 ? 'soon' : 'far');
 
 /** what a contact is worth on the board: the seller's target, or the midpoint */
-export const expectedPrice = c => {
-  if (!c) return 0;
-  const t = Number(c.targetPrice) || 0;
-  if (t > 0) return t;
-  const lo = Number(c.priceMin) || 0, hi = Number(c.priceMax) || 0;
-  if (lo && hi) return Math.round((lo + hi) / 2);
-  return lo || hi || 0;
-};
 
 /** the price a row or card shows */
 const priceText = c => {

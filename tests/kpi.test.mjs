@@ -149,10 +149,14 @@ export default async function run(t) {
   await esbuild.build({
     stdin: {
       contents: `
-        export { buildModel, closedOn, onClosedDate } from './src/views/Dashboard.jsx';
+        export { buildModel } from './src/views/Dashboard.jsx';
         export { weekNumbers, weekDates } from './src/views/Huddle.jsx';
         export { weightedForecast } from './src/views/Pipeline.jsx';
-        export { capPaidBefore, txGross } from './src/views/Transactions.jsx';
+        export { capPaidBefore } from './src/views/Transactions.jsx';
+        /* txGross, closedOn and onClosedDate moved to lib/txn.js — they were
+           defined in three views and two views respectively, and the tests were
+           importing whichever copy happened to be exported. */
+        export { closedOn, onClosedDate, txGross } from './src/lib/txn.js';
         export { defaultSettings, stagesOf } from './src/lib/settings.js';
         export { capPeriod, computeCommission, agentPlan } from './src/lib/commission.js';
       `,

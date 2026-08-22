@@ -39,6 +39,7 @@ import {
 import { capProgress, agentPlan, computeCommission } from '../lib/commission';
 import { usd, sum, pct } from '../lib/format';
 import { Card, Kpi, Btn, Empty, SecTitle, Pill, LegalNote, Drill } from '../components/ui';
+import { FLAT_PLAN, closedOn, onClosedDate, txGross } from '../lib/txn';
 
 /* ============================================================ small helpers */
 
@@ -56,16 +57,9 @@ function forecastRate(settings) {
 
 /* a neutral plan: gross is plan-independent, but computeCommission wants one.
    Going through the engine for gross means one definition of "gross" exists. */
-const FLAT_PLAN = agentPlan({ keepPct: 100, cap: 0, teamPct: 0, fees: [] });
 const grossFor = (salePrice, rate) =>
   computeCommission({ salePrice, commissionRate: rate }, FLAT_PLAN, { capPaidToDate: 0 }).gross;
 
-/** gross commission on a transaction: the snapshot if it closed, else computed */
-function txGross(t) {
-  const snap = t && t.commissionSnapshot && Number(t.commissionSnapshot.gross);
-  if (Number.isFinite(snap) && snap > 0) return snap;
-  return computeCommission(t || {}, FLAT_PLAN, { capPaidToDate: 0 }).gross;
-}
 
 /** the price a forecast should use for an open contact */
 function forecastPrice(c) {
@@ -82,9 +76,7 @@ function forecastPrice(c) {
    a week late closed a week late. Transactions.jsx and Commission.jsx import
    this same helper so a calendar-year tile and a cap-period bar can never be
    reading two different dates off the same record. */
-export const closedOn = t => String((t && (t.closedActual || t.closeDate)) || '').slice(0, 10);
 /** the same record, with closeDate normalised so cap maths sees the real date */
-export const onClosedDate = t => ({ ...t, closeDate: closedOn(t) || t.closeDate || null });
 /** a side counts as one unit; a dual-agency deal is two */
 const unitsOf = t => (t && t.side === 'both' ? 2 : 1);
 

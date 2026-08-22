@@ -72,6 +72,12 @@ if (!only || only === 'commission') {
   await mod.default(t);
 }
 
+if (!only || only === 'oneplace') {
+  header('one place — a fact has a single definition');
+  const mod = await import('./oneplace.test.mjs');
+  await mod.default(t);
+}
+
 if (!only || only === 'guards') {
   header('guards — every route that spends money is behind auth');
   const mod = await import('./guards.test.mjs');
