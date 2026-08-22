@@ -39,7 +39,7 @@ import {
 import { capProgress, agentPlan, computeCommission } from '../lib/commission';
 import { usd, sum, pct } from '../lib/format';
 import { Card, Kpi, Btn, Empty, SecTitle, Pill, LegalNote, Drill } from '../components/ui';
-import { FLAT_PLAN, closedOn, onClosedDate, txGross } from '../lib/txn';
+import { FLAT_PLAN, closedOn, expectedPrice, onClosedDate, txGross } from '../lib/txn';
 
 /* ============================================================ small helpers */
 
@@ -61,15 +61,6 @@ const grossFor = (salePrice, rate) =>
   computeCommission({ salePrice, commissionRate: rate }, FLAT_PLAN, { capPaidToDate: 0 }).gross;
 
 
-/** the price a forecast should use for an open contact */
-function forecastPrice(c) {
-  const target = Number(c && c.targetPrice);
-  if (Number.isFinite(target) && target > 0) return target;
-  const lo = Number(c && c.priceMin) || 0;
-  const hi = Number(c && c.priceMax) || 0;
-  if (lo > 0 && hi > 0) return (lo + hi) / 2;
-  return lo || hi || 0;
-}
 
 /* ONE definition of "when it closed", used by every screen that asks.
    The actual close date wins over the scheduled one, because a deal that closed
@@ -199,7 +190,7 @@ export function buildModel(ctx) {
   const alreadyOnTheBoard = openStageContacts.filter(hasLiveOrClosedTxn);
   const openContacts = openStageContacts.filter(c => !hasLiveOrClosedTxn(c));
   const openRows = openContacts.map(c => {
-    const price = forecastPrice(c);
+    const price = expectedPrice(c);
     const st = stageOf(c.stage, settings) || {};
     const gross = price > 0 ? grossFor(price, fRate) : 0;
     return { c, price, gross, prob: Number(st.prob) || 0 };
