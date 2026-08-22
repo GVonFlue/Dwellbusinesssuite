@@ -1,3 +1,4 @@
+import { guard, sweep } from './_guard.js';
 // Creates (or deletes) an event on the connected Google Calendar's primary calendar.
 // POST body to create: { title, start, end, notes, attendees:[email], meet:bool, timezone }
 // POST body to delete: { action:'delete', eventId }
@@ -8,6 +9,26 @@ const CAL = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') { res.status(405).json({ ok: false, error: 'POST only' }); return; }
+
+  /* SIGNED-IN USERS ONLY. This route takes an arbitrary `attendees` array and
+     posts to Google with sendUpdates=all — so before this guard, anyone who
+     found the URL could send calendar invitations from this install's connected
+     Google account to any address they chose. That is an outbound-email
+     primitive on a real person's account, which is worse than the spend risk on
+     the AI routes.
+
+     A SESSION IS NOT THE WHOLE ANSWER, and this is deliberately only half the
+     fix: it stops anonymous abuse, but a signed-in agent can still name any
+     attendee. Constraining the recipient needs a decision about what the
+     legitimate set IS on Dwell — contacts the caller owns, the team, something
+     else — and that is not a decision to make at midnight inside a security
+     patch. Written up rather than guessed at. */
+  const gate = await guard(req, res, {
+    name: 'calendar-event', perIp: 30, windowMin: 10, perDay: 600,
+    maxChars: 20000, requireAuth: true,
+  });
+  if (!gate.ok) return;
+  sweep();
   try {
     const token = await getAccessToken();
     if (!token) { res.status(200).json({ ok: false, error: 'not_connected' }); return; }

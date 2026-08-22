@@ -1,3 +1,4 @@
+import { guard, sweep } from './_guard.js';
 /* ============================================================================
    POST /api/extract-contract
 
@@ -172,6 +173,15 @@ function shape(raw) {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ ok: false, reason: 'method', error: 'POST only' });
+  /* a scanned contract, same reasoning as the receipt above. Signed-in users only: before this, anyone who found
+     the URL could spend this install's Anthropic key. */
+  const gate = await guard(req, res, {
+    name: 'extract-contract', perIp: 20, windowMin: 10, perDay: 400,
+    maxChars: 8000000, requireAuth: true,
+  });
+  if (!gate.ok) return;
+  sweep();
+
 
   const KEY = process.env.ANTHROPIC_API_KEY;
   if (!KEY) return res.status(200).json({ ok: false, reason: 'not_configured' });

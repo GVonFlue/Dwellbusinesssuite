@@ -33,6 +33,7 @@ import {
   Btn, Card, Empty, ErrorNote, Field, Inp, Kpi, ModalShell, Pill, SecTitle,
   Sel, Tag, Txt,
 } from '../components/ui';
+import { apiPost } from '../lib/data';
 
 /* ------------------------------------------------------------- constants --- */
 
@@ -470,11 +471,7 @@ function ExpenseModal({ ctx, initial, cats, rate, onClose }) {
     setScanning(true);
     setScanErr('');
     try {
-      const res = await fetch('/api/parse-receipt', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: dataUrl }),
-      });
+      const res = await apiPost('/api/parse-receipt', { image: dataUrl });
       if (!res.ok) throw new Error(`the scanner answered ${res.status}`);
       let json = null;
       try { json = await res.json(); }

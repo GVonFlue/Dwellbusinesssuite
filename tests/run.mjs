@@ -69,6 +69,12 @@ if (!only || only === 'commission') {
   await mod.default(t);
 }
 
+if (!only || only === 'guards') {
+  header('guards — every route that spends money is behind auth');
+  const mod = await import('./guards.test.mjs');
+  await mod.default(t);
+}
+
 if (!only || only === 'kpi') {
   header('kpi — the numbers on the dashboard, huddle, pipeline and board');
   const mod = await import('./kpi.test.mjs');

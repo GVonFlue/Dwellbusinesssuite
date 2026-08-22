@@ -38,6 +38,7 @@ import { checklistFor, stageLabel, phasesOf } from '../lib/settings';
 import { computeCommission } from '../lib/commission';
 import { BRAND } from '../lib/brand';
 import { TOOLS_CSS } from './tools.css.js';
+import { apiPost } from '../lib/data';
 
 /* ============================================================================
    plumbing
@@ -59,11 +60,7 @@ const reasonText = j => (j && (REASONS[j.reason] || j.detail)) || 'That did not 
 
 async function callAi(job, payload) {
   try {
-    const r = await fetch('/api/ai', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ job, payload }),
-    });
+    const r = await apiPost('/api/ai', { job, payload });
     const j = await r.json();
     return j && typeof j === 'object' ? j : { ok: false, reason: 'bad_response' };
   } catch (e) {
