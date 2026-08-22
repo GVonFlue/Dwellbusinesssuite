@@ -72,6 +72,12 @@ if (!only || only === 'commission') {
   await mod.default(t);
 }
 
+if (!only || only === 'jarvis') {
+  header('jarvis — the payload, and who may see money in it');
+  const mod = await import('./jarvis.test.mjs');
+  await mod.default(t);
+}
+
 if (!only || only === 'oneplace') {
   header('one place — a fact has a single definition');
   const mod = await import('./oneplace.test.mjs');

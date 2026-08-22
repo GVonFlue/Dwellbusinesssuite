@@ -12,12 +12,12 @@
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
-  LayoutDashboard, KanbanSquare, Contact2, Building2, FileText, DollarSign,
+  Bot, LayoutDashboard, KanbanSquare, Contact2, Building2, FileText, DollarSign,
   BookText, Sparkles, CalendarCheck, Settings as SettingsIcon, Menu, LogOut,
   Loader2, AlertTriangle, ShieldCheck, RotateCcw, Plane,
 } from 'lucide-react';
 
-import { BRAND, DEMO, PRODUCT_SHORT } from './lib/brand';
+import { AI_NAME, BRAND, DEMO, PRODUCT_SHORT } from './lib/brand';
 import { ASSETS } from './lib/assets';
 import { photoOf } from './lib/people';
 import SidebarArt from './components/SidebarArt';
@@ -28,6 +28,7 @@ import { today, urgency, effectiveDateOf, daysUntil } from './lib/dates';
 import { uid, initials } from './lib/format';
 import { Card, Btn, Field, Inp } from './components/ui';
 
+import Assistant from './views/Assistant';
 import Dashboard from './views/Dashboard';
 import PCS from './views/PCS';
 import Pipeline from './views/Pipeline';
@@ -41,11 +42,13 @@ import Huddle from './views/Huddle';
 import SettingsView from './views/Settings';
 
 const ICONS = {
+  assistant: Bot,
   dashboard: LayoutDashboard, pcs: Plane, pipeline: KanbanSquare, contacts: Contact2,
   transactions: Building2, contracts: FileText, commission: DollarSign,
   books: BookText, tools: Sparkles, huddle: CalendarCheck, settings: SettingsIcon,
 };
 const VIEWS = {
+  assistant: Assistant,
   dashboard: Dashboard, pcs: PCS, pipeline: Pipeline, contacts: Contacts,
   transactions: Transactions, contracts: Contracts, commission: Commission,
   books: Books, tools: Tools, huddle: Huddle, settings: SettingsView,
@@ -346,9 +349,11 @@ export default function App() {
             <nav className="sb-nav">
               {nav.map(s => {
                 const I = ICONS[s.key] || LayoutDashboard;
+                /* the assistant carries the tenant's own name */
+                const label = s.key === 'assistant' ? AI_NAME : s.label;
                 return (
                   <button key={s.key} className={'nav-i' + (view === s.key ? ' on' : '')} onClick={() => go(s.key)}>
-                    <I size={16} /> <span className="nav-l">{s.label}</span>
+                    <I size={16} /> <span className="nav-l">{label}</span>
                   </button>
                 );
               })}
@@ -402,7 +407,7 @@ export default function App() {
             <div className="top">
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
                 <button className="hamb" onClick={() => setNavOpen(o => !o)}><Menu size={22} /></button>
-                <h1>{current ? current.label : 'Dashboard'}</h1>
+                <h1>{current ? (current.key === 'assistant' ? AI_NAME : current.label) : 'Dashboard'}</h1>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 {loading && <Loader2 size={16} className="spin" style={{ color: '#928DAD' }} />}

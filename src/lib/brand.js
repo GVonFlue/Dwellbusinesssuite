@@ -77,6 +77,20 @@ export const BRAND = {
   },
 };
 
+/* THE ASSISTANT'S NAME, per tenant.
+
+   Ported from ProyTech, including the reason the default is computed rather
+   than written: forgetting to set a variable must never leak an internal name
+   into somebody else's install. So the fallback is keyed off BRAND.id — ours
+   is JARVIS, anybody else's is the neutral word.
+
+   Set VITE_AI_NAME per Vercel project. It is a BUILD-TIME variable, so
+   changing it needs a redeploy, not just a save. */
+export const AI_NAME = val(
+  import.meta.env.VITE_AI_NAME,
+  BRAND.id === 'proytech' ? 'JARVIS' : 'Assistant',
+);
+
 export const icon = f => `/brands/${BRAND.id}/${f}`;
 
 /* Supabase creds are REQUIRED in the real product — no fallback on purpose.
