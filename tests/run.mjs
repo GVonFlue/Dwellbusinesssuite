@@ -72,6 +72,12 @@ if (!only || only === 'commission') {
   await mod.default(t);
 }
 
+if (!only || only === 'tasks') {
+  header('tasks — the buckets a day gets worked in');
+  const mod = await import('./tasks.test.mjs');
+  await mod.default(t);
+}
+
 if (!only || only === 'jarvis') {
   header('jarvis — the payload, and who may see money in it');
   const mod = await import('./jarvis.test.mjs');
