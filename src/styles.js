@@ -1293,4 +1293,8 @@ button,a,label,select,input,textarea,.kcard,.fu-card,.cli-card,.rt-person,.msec-
   color:${COBALT};cursor:pointer}
 .ac-link:hover{text-decoration:underline}
 .ac-by{color:#8E89A8}
+
+.tbl.sc .sc-sub{font-size:10.5px;color:#9b98ad;margin-top:1px;font-weight:500}
+.tbl.sc .sc-none{color:#C9C5D9}
+.tbl.sc .sc-bad{color:#B03030;font-weight:700}
 `;

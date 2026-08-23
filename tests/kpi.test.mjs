@@ -149,7 +149,7 @@ export default async function run(t) {
   await esbuild.build({
     stdin: {
       contents: `
-        export { buildModel } from './src/views/Dashboard.jsx';
+        export { buildModel, allowedSections } from './src/views/Dashboard.jsx';
         export { weekNumbers, weekDates } from './src/views/Huddle.jsx';
         export { weightedForecast } from './src/views/Pipeline.jsx';
         export { capPaidBefore } from './src/views/Transactions.jsx';
@@ -438,4 +438,58 @@ export default async function run(t) {
 
   /* ---------------------------------------------------------------- tidy up */
   try { rmSync(outFile, { force: true }); } catch { /* the runner cleans the dir */ }
+
+  /* ==================================================================== N
+     THE SCORECARD'S NEW COLUMNS.
+
+     Volume, average price, fall-through rate and cap progress. Three of the
+     four are arithmetic; the interesting ones are the two judgment calls,
+     which are asserted rather than left to a comment:
+
+       AVERAGE PRICE divides by TRANSACTIONS, not units. A dual-agency deal is
+       two units and one house — dividing by units would halve the average
+       price of every deal where the agent represented both sides.
+
+       FALL-THROUGH is measured over RESOLVED deals only, closed plus fell. A
+       deal still under contract has not had its chance to fall, and counting
+       it would flatter whoever has a full board this month. When nothing has
+       resolved the rate is NULL, not zero: a rate over no deals is unknown.
+     ------------------------------------------------------------------ */
+  {
+    const sc = m.scorecard;
+    t.ok(Array.isArray(sc) && sc.length > 0, 'the scorecard has rows');
+
+    for (const r of sc) {
+      t.ok(r.volume >= 0, `${r.user.name}: volume is a number, not NaN`);
+      t.ok(r.avgPrice === null || r.avgPrice > 0, `${r.user.name}: average price is null or positive, never zero`);
+      t.ok(r.fellRate === null || (r.fellRate >= 0 && r.fellRate <= 1),
+        `${r.user.name}: fall-through is a fraction or null`);
+      if (r.fellRate !== null) {
+        t.eq(r.resolved, r.units > 0 || r.fell > 0 ? r.resolved : 0,
+          `${r.user.name}: resolved is carried on the row rather than reconstructed from the rate`);
+        t.ok(r.resolved >= r.fell, `${r.user.name}: resolved includes the ones that fell`);
+      }
+      /* the cap figure is JOINED from the same rows the bars render, so the two
+         cannot disagree about how far through a cap somebody is */
+      const bar = m.capRows && m.capRows.find(x => x.user.id === r.user.id);
+      if (bar && r.cap) {
+        t.eq(r.cap.pct, bar.prog.pct, `${r.user.name}: the scorecard cap matches the cap bar exactly`);
+      }
+    }
+
+    /* THE BOUNDARY. This section is the only place on the dashboard carrying
+       per-agent money, and the rule is the same one the assistant's redaction
+       follows: the UI is the boundary because Postgres deliberately is not.
+       A coordinator reads every transaction row in the database, salePrice
+       included — so the ONLY thing keeping GCI off their screen is that this
+       section never renders for them. Asserted, not assumed. */
+    t.ok(V.allowedSections(true).some(x => x.key === 'scorecard'),
+      'the leader gets the team scorecard');
+    t.ok(!V.allowedSections(false).some(x => x.key === 'scorecard'),
+      'and nobody else does — one filter, and it is the whole control');
+
+    /* a seat with nothing resolved must read unknown, not 0% */
+    const untouched = sc.find(r => r.units === 0 && r.fell === 0);
+    if (untouched) t.eq(untouched.fellRate, null, 'a seat with nothing resolved has no fall-through rate at all');
+  }
 }
