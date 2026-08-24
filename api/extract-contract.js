@@ -1,4 +1,5 @@
 import { guard, sweep } from './_guard.js';
+import { aiKey, logAiFailure } from './_aikey.js';
 /* ============================================================================
    POST /api/extract-contract
 
@@ -183,7 +184,7 @@ export default async function handler(req, res) {
   sweep();
 
 
-  const KEY = process.env.ANTHROPIC_API_KEY;
+  const KEY = aiKey('extract-contract');
   if (!KEY) return res.status(200).json({ ok: false, reason: 'not_configured' });
 
   let body = req.body;
@@ -227,6 +228,7 @@ export default async function handler(req, res) {
 
     const j = await r.json().catch(() => null);
     if (!r.ok) {
+      logAiFailure('extract-contract', r.status, j);
       return res.status(200).json({ ok: false, reason: 'api_error', status: r.status,
         detail: (j && (j.error?.message || j.message)) || 'The model call failed.' });
     }
