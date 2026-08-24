@@ -72,6 +72,12 @@ if (!only || only === 'commission') {
   await mod.default(t);
 }
 
+if (!only || only === 'import') {
+  header('import — the CSV does not invent a contact you never made');
+  const mod = await import('./import.test.mjs');
+  await mod.default(t);
+}
+
 if (!only || only === 'activity') {
   header('activity — what happened, what a person did, and the scan that keeps them apart');
   const mod = await import('./activity.test.mjs');
