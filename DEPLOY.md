@@ -69,9 +69,9 @@ Import the repo. Environment variables:
 | `VITE_TZ` | | defaults to `America/Chicago`. **Deadlines are rendered in this zone** |
 | `VITE_MODULES` | | comma-separated section keys to ship a narrower app |
 | `VITE_BIZ_NAME` / `_ADDRESS` / `_EMAIL` / `_PHONE` / `_LICENSE` | | appear on client-facing output |
-| `ANTHROPIC_API_KEY` | for AI | server-side only. Contract extraction, receipt scanning, every AI panel |
-| `SUPABASE_URL` | for reminders | same URL again, without the `VITE_` prefix, for the cron |
-| `SUPABASE_SERVICE_ROLE_KEY` | for reminders | **server only.** Never prefix this with `VITE_` |
+| `ANTHROPIC_API_KEY` | for AI | server-side only. Contract extraction, receipt scanning, the assistant, every AI panel |
+| `SUPABASE_URL` | **yes** | the same URL again, without the `VITE_` prefix. See the trap below |
+| `SUPABASE_SERVICE_ROLE_KEY` | **yes** | **server only, never prefixed with `VITE_`.** See the trap below |
 | `RESEND_API_KEY` | for reminders | from resend.com |
 | `NOTIFY_FROM` | for reminders | `"Cornerstone CRM <crm@theirdomain.com>"` — the domain must be verified in Resend |
 | `APP_URL` | for reminders | `https://their-crm.vercel.app`, used for links in emails |
@@ -80,6 +80,34 @@ Import the repo. Environment variables:
 
 Do **not** set `VITE_DEMO` on a real install. If it is set, the app never touches
 the database.
+
+#### The service-key trap — read this one
+
+`SUPABASE_SERVICE_ROLE_KEY` used to be listed here as "for reminders". It is
+not. **Every endpoint behind `api/_guard.js` needs it** — the assistant, the AI
+panels, receipt scanning, contract extraction and the calendar sync — because
+the guard verifies the caller's session by asking Supabase, and that call needs
+a server key.
+
+The trap is what happens when it is missing, and it is nastier than it sounds:
+
+* the browser only ever needs `VITE_SUPABASE_URL` and the anon key, so **the app
+  itself works perfectly** — you sign in, the data loads, everything renders;
+* the guard falls back to `VITE_SUPABASE_URL` when `SUPABASE_URL` is absent, so
+  the URL half looks fine and quietly is;
+* but the service key **has no `VITE_` equivalent by design** — it must never
+  reach a browser — so nothing else can stand in for it;
+* so every guarded endpoint answers **401 "Session expired."** while the session
+  is perfectly valid, and signing out and back in does not help.
+
+An install can therefore look correctly configured, be correctly configured from
+the browser's point of view, and have every server-side feature failing. This
+happened on a live install and cost a round trip to diagnose.
+
+**If you see "Session expired." on an AI feature while the CRM itself works,
+check this variable first.** The guard now says which precondition failed in the
+Vercel function log — it will name `SUPABASE_SERVICE_ROLE_KEY` directly — so one
+reproduction and the log answers it rather than guesswork.
 
 ### 3. First run
 

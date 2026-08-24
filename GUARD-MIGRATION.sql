@@ -10,6 +10,18 @@
 -- verifies the caller's Supabase JWT and fails CLOSED. So even without this
 -- migration the endpoints stop being anonymous the moment the code deploys.
 -- This is what makes them rate-limited as well.
+-- ---------------------------------------------------------------------------
+-- BEFORE YOU RUN THIS, CHECK THE ENVIRONMENT.
+--
+-- This table is only half of what the guard needs. The other half is
+-- SUPABASE_SERVICE_ROLE_KEY on the Vercel project, and its absence is a trap
+-- worth knowing about: the browser never needs it, so the app works perfectly
+-- while EVERY guarded endpoint answers 401 "Session expired." on a session that
+-- is entirely valid. The URL half falls back to VITE_SUPABASE_URL and looks
+-- fine; the key half has no VITE_ equivalent by design and cannot.
+--
+-- It happened on a live install. See DEPLOY.md, "The service-key trap".
+-- ---------------------------------------------------------------------------
 -- ===========================================================================
 
 create table if not exists api_hits (
