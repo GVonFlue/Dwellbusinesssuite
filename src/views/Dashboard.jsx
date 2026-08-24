@@ -484,6 +484,28 @@ export function buildModel(ctx) {
         const at = String(a.at || '').slice(0, 10);
         if (isDate(at) && at >= windowStart && at <= today) held++;
       }));
+      const fell = txns.filter(t => t.owner_id === u.id && t.status === 'fell').length;
+
+      /* VOLUME is the sale price of what closed — the number agents actually
+         quote each other, and the one GCI hides: GCI depends on the split, and
+         two agents on different splits close the same house for different GCI.
+
+         AVERAGE PRICE divides volume by the number of closed TRANSACTIONS, not
+         by units. Units count sides, so a dual-agency deal is 2 units and 1
+         house — dividing by units would halve the average price of every deal
+         where the agent represented both sides. A transaction missing a price
+         is left out of the average rather than counted as zero, which would
+         drag it down for a data-entry gap. */
+      const priced = closedMine.filter(t => Number(t.salePrice) > 0);
+      const volume = sum(priced, t => Number(t.salePrice) || 0);
+
+      /* FALL-THROUGH RATE over RESOLVED deals only — closed plus fell. Deals
+         still under contract have not had their chance to fall yet, and
+         including them would flatter whoever happens to have a full board this
+         month. Null rather than 0 when nothing has resolved: a rate over no
+         deals is not zero, it is unknown. */
+      const resolved = closedMine.length + fell;
+
       return {
         user: u,
         open: openMine.length,
@@ -492,7 +514,15 @@ export function buildModel(ctx) {
         uc: txns.filter(t => t.owner_id === u.id && t.status === 'active').length,
         units: sum(closedMine, unitsOf),
         gci: sum(closedMine, txGross),
-        fell: txns.filter(t => t.owner_id === u.id && t.status === 'fell').length,
+        fell,
+        volume,
+        avgPrice: priced.length ? Math.round(volume / priced.length) : null,
+        unpricedClosed: closedMine.length - priced.length,
+        fellRate: resolved > 0 ? fell / resolved : null,
+        resolved,
+        /* the SAME cap figure the bars above render — joined, not recomputed,
+           so the two can never disagree about how far through a cap somebody is */
+        cap: (capRows.find(r => r.user.id === u.id) || {}).prog || null,
       };
     })
     .sort((a, b) => b.gci - a.gci || b.units - a.units);
@@ -1002,7 +1032,7 @@ function ScorecardSection({ m }) {
   return (
     <Card
       title="Team scorecard"
-      sub={`Open pipeline (open stages, excluding contacts already on the transactions board), appointments held in the last ${m.activity.window} days, and closed production in calendar ${m.pipeline.year} by actual close date. A seat that has been deactivated but still owns closed deals stays on this table, so these rows always add up to the GCI tile.`}
+      sub={`Open pipeline (open stages, excluding contacts already on the transactions board), appointments held in the last ${m.activity.window} days, and closed production in calendar ${m.pipeline.year} by actual close date. A seat that has been deactivated but still owns closed deals stays on this table, so these rows always add up to the GCI tile. Fall-through is measured over RESOLVED deals only — closed plus fell — because a deal still under contract has not had its chance to fall. Average price divides by transactions rather than units, so representing both sides of one house does not halve it.`}
       right={<Pill color="#3B3470">team leader view</Pill>}
     >
       {!rows.length && <Empty>No active seats to compare.</Empty>}
@@ -1018,6 +1048,10 @@ function ScorecardSection({ m }) {
                 <th>Appts held</th>
                 <th>Under contract</th>
                 <th>Closed units</th>
+                <th>Closed volume</th>
+                <th>Avg price</th>
+                <th>Fell through</th>
+                <th>Cap</th>
                 <th>Closed GCI</th>
               </tr>
             </thead>
@@ -1028,17 +1062,37 @@ function ScorecardSection({ m }) {
                     <b>{r.user.name || r.user.email}</b>
                     {r.user.role === 'leader' && <span className="pool-chip" style={{ marginLeft: 7 }}>leader</span>}
                     {r.user.active === false && <span className="pool-chip" style={{ marginLeft: 7 }}>inactive</span>}
-                    {r.fell > 0 && (
-                      <div style={{ fontSize: 11, color: '#B03030', marginTop: 2 }}>
-                        {r.fell} fell through
-                      </div>
-                    )}
                   </td>
                   <td>{r.open}</td>
                   <td>{usd(r.weighted)}</td>
                   <td>{r.held}</td>
                   <td>{r.uc}</td>
                   <td>{r.units}</td>
+                  <td>{r.volume > 0 ? usd(r.volume) : <span className="sc-none">—</span>}</td>
+                  <td>
+                    {r.avgPrice ? usd(r.avgPrice) : <span className="sc-none">—</span>}
+                    {r.unpricedClosed > 0 && (
+                      <div className="sc-sub" title="Closed transactions with no sale price recorded are left out of the average rather than counted as zero.">
+                        {r.unpricedClosed} without a price
+                      </div>
+                    )}
+                  </td>
+                  <td>
+                    {r.fellRate == null
+                      ? <span className="sc-none">—</span>
+                      : <span className={r.fellRate >= 0.25 ? 'sc-bad' : ''}>
+                          {Math.round(r.fellRate * 100)}%
+                          <div className="sc-sub">{r.fell} of {r.resolved} resolved</div>
+                        </span>}
+                  </td>
+                  <td>
+                    {r.cap && r.cap.cap > 0
+                      ? <>
+                          {Math.round(r.cap.pct * 100)}%
+                          <div className="sc-sub">{usd(r.cap.remaining)} to go</div>
+                        </>
+                      : <span className="sc-none">no cap</span>}
+                  </td>
                   <td><b>{usd(r.gci)}</b></td>
                 </tr>
               ))}
@@ -1144,7 +1198,12 @@ function FollowupsSection({ ctx, m }) {
 /* ============================================================ layout plumbing */
 
 /** the sections this user can be shown at all — leader-only ones vanish for agents */
-function allowedSections(isLeader) {
+/* Exported so the boundary can be ASSERTED rather than read. The scorecard
+   carries GCI, volume and cap progress per agent — the money a coordinator is
+   deliberately not shown and an agent has no business seeing about a
+   colleague. isLeader is strictly role === 'leader' (App.jsx keeps a
+   coordinator out of it on purpose), so this one filter is the whole control. */
+export function allowedSections(isLeader) {
   return DASH_SECTIONS.filter(s => !s.leaderOnly || isLeader);
 }
 
