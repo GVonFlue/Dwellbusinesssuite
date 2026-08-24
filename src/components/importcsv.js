@@ -652,7 +652,7 @@ export function buildContact(cells, opt) {
   const created = parseDateCell(createdRaw, o.dateOrder);
   const lastTouch = parseDateCell(touchRaw, o.dateOrder);
   if (createdRaw && !created) warnings.push(`"${createdRaw}" is not a date anything here can read — the created date is today instead.`);
-  if (touchRaw && !lastTouch) warnings.push(`"${touchRaw}" is not a date anything here can read — last contact is today instead.`);
+  if (touchRaw && !lastTouch) warnings.push(`"${touchRaw}" is not a date anything here can read — last contact is left empty.`);
 
   /* ---- notes, with the tags column preserved rather than dropped */
   const tags = splitList(get('tags'));
@@ -673,7 +673,20 @@ export function buildContact(cells, opt) {
     pool: null,
     pooled_at: null,
     created_at: created || o.todayIso || null,
-    lastTouch: lastTouch || o.todayIso || null,
+    /* NOT `|| o.todayIso`. Stamping today would record that somebody made
+       contact on the day the file was uploaded, which nobody did — and
+       lastTouch drives the Contacts sort, the cold check on the dashboard and
+       the cold sort key, so an import would land every new contact at the WARM
+       end of the list and out of every "who has gone quiet" view.
+
+       Empty is the honest answer and the readers already handle it: the
+       dashboard treats a non-date as needing attention, the cold key goes null,
+       and the column reads as never contacted. Same defect ProyTech had, found
+       here before it bit rather than after.
+
+       created_at above KEEPS its fallback, deliberately: the record really was
+       created today. It is the contact that is new, not the relationship. */
+    lastTouch: lastTouch || null,
     priceMin: priceMin === '' ? '' : priceMin,
     priceMax: priceMax === '' ? '' : priceMax,
     targetPrice: targetPrice === '' ? '' : targetPrice,
