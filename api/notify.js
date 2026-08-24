@@ -1,3 +1,4 @@
+import { SUPA_KEY, SUPA_URL } from './_env.js';
 /* ============================================================================
    /api/notify — deadline reminders, and the only place email is sent from.
 
@@ -59,8 +60,8 @@ const todayIn = tz => {
 };
 
 /* ---------------------------------------------------------------- supabase */
-const SB = process.env.SUPABASE_URL;
-const SKEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SB = SUPA_URL;
+const SKEY = SUPA_KEY;
 
 async function sb(path, init) {
   const r = await fetch(`${SB}/rest/v1/${path}`, {
