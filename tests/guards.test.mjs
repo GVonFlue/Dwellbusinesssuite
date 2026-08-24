@@ -63,4 +63,40 @@ export default async function run(t) {
   const data = read('src/lib/data.js');
   t.ok(/authorization:\s*`Bearer \$\{tok\}`/.test(data), 'apiPost attaches the bearer token');
   t.ok(/auth\.session\(\)/.test(data), 'and gets it from the live session');
+
+  /* ---- Supabase credentials come from ONE place ---------------------------
+     Three files used to read these variables differently: _guard and _spend
+     accepted either spelling of the key and fell back to VITE_SUPABASE_URL,
+     _google and notify accepted neither. The asymmetry is invisible at setup
+     and expensive later — an install that set only the short key name got a
+     working assistant and a Google Calendar integration that silently could
+     not read its own token.
+
+     Patching those files fixes the instances. THIS is what kills the class:
+     nothing under api/ may read the variables directly, so the next file to
+     need Supabase credentials gets both spellings and both fallbacks by
+     construction rather than by somebody remembering. */
+  {
+    const apiFiles = fs.readdirSync('api').filter(f => f.endsWith('.js'));
+    const direct = [];
+    for (const f of apiFiles) {
+      if (f === '_env.js') continue;              // the one place allowed to
+      const s2 = read(path.join('api', f));
+      for (const m of s2.matchAll(/process\.env\.(VITE_)?SUPABASE[A-Z_]*/g)) direct.push(`${f}: ${m[0]}`);
+    }
+    t.ok(direct.length === 0,
+      direct.length
+        ? `only _env.js may read the Supabase variables — found ${direct.join(', ')}`
+        : 'only _env.js reads the Supabase variables; everything else imports it');
+
+    const env = read('api/_env.js');
+    t.ok(/SUPABASE_URL/.test(env) && /VITE_SUPABASE_URL/.test(env),
+      'and _env.js accepts both spellings of the URL');
+    t.ok(/SUPABASE_SERVICE_KEY/.test(env) && /SUPABASE_SERVICE_ROLE_KEY/.test(env),
+      'and both spellings of the service key');
+    /* the asymmetry that IS deliberate: a VITE_ variable is compiled into the
+       browser bundle, and this key bypasses RLS entirely */
+    t.ok(!/VITE_SUPABASE_SERVICE/.test(env),
+      'while the service key has NO VITE_ fallback — that one would ship the key to the browser');
+  }
 }
