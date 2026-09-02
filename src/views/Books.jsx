@@ -34,13 +34,14 @@ import {
   Sel, Tag, Txt,
 } from '../components/ui';
 import { apiPost } from '../lib/data';
+import { BRAND } from '../lib/brand';
 
 /* ------------------------------------------------------------- constants --- */
 
 const MILEAGE = 'Mileage';
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const PALETTE = ['#1338DE', '#3B3470', '#C8A24A', '#1F9D55', '#2BA7A0', '#7A5CC8',
-  '#D98A3D', '#6B73C9', '#B0606A', '#5C76EE', '#928DAD', '#D14343'];
+const PALETTE = [BRAND.colors.cobalt, BRAND.colors.indigo, BRAND.colors.gold, BRAND.colors.green, '#2BA7A0', '#7A5CC8',
+  '#D98A3D', '#6B73C9', '#B0606A', '#5C76EE', '#928DAD', BRAND.colors.red];
 
 /* the one bit of arithmetic this screen owns, and it is the brief's own formula:
    miles x the rate held in settings. Rounded to cents. */
@@ -576,8 +577,8 @@ function ExpenseModal({ ctx, initial, cats, rate, onClose }) {
               icon={scanning ? <Loader2 size={13} className="spin" /> : <ScanLine size={13} />}>
               {scanning ? 'Reading it' : 'Scan it and pre-fill'}
             </Btn>
-            {file && <Pill color="#1338DE"><FileText size={11} /> {file.name}</Pill>}
-            {!file && e.receiptPath && <Pill color="#1F9D55"><FileText size={11} /> file on record</Pill>}
+            {file && <Pill color="${BRAND.colors.cobalt}"><FileText size={11} /> {file.name}</Pill>}
+            {!file && e.receiptPath && <Pill color="${BRAND.colors.green}"><FileText size={11} /> file on record</Pill>}
             {file && (
               <button className="ex-del" title="Clear the file" onClick={() => { setFile(null); setDataUrl(''); setScanErr(''); }}>
                 <X size={14} />

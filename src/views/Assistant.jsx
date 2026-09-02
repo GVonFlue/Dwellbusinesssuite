@@ -9,6 +9,7 @@ import {
   visibleContacts, visibleTxns, JARVIS_MAX_TURNS,
 } from '../lib/jarvis';
 import { apiPost } from '../lib/data';
+import { alpha } from '../lib/color';
 
 /* ============================================================================
    JARVIS — ask the CRM anything.
@@ -61,7 +62,7 @@ const CSS = `
   border-bottom:1px solid rgba(56,189,248,.16);background:linear-gradient(180deg,rgba(5,7,26,.62),rgba(5,7,26,.3))}
 /* the arc reactor: white-hot core, cobalt bloom, two rings */
 .jv-arc{width:36px;height:36px;flex:none;border-radius:50%;position:relative;
-  background:radial-gradient(circle,var(--arc3) 0%,var(--arc2) 20%,var(--arc) 40%,rgba(43,77,224,.34) 62%,transparent 75%);
+  background:radial-gradient(circle,var(--arc3) 0%,var(--arc2) 20%,var(--arc) 40%,${alpha(BRAND.colors.cobalt,.34)} 62%,transparent 75%);
   box-shadow:0 0 20px rgba(56,189,248,.8),0 0 48px rgba(56,189,248,.28),inset 0 0 9px rgba(234,251,255,.55)}
 .jv-arc:before,.jv-arc:after{content:'';position:absolute;border-radius:50%;border:1px solid rgba(127,216,255,.6)}
 .jv-arc:before{inset:5px}
@@ -97,7 +98,7 @@ const CSS = `
 .jv-seed{background:rgba(56,189,248,.06);border:1px solid rgba(56,189,248,.22);color:#B9E9FA;
   border-radius:9px;padding:9px 15px;font-size:12.5px;cursor:pointer;font-family:inherit;
   transition:.16s;text-align:left;position:relative}
-.jv-seed:hover{background:linear-gradient(90deg,rgba(43,77,224,.4),rgba(43,77,224,.13));color:#fff;
+.jv-seed:hover{background:linear-gradient(90deg,${alpha(BRAND.colors.cobalt,.4)},${alpha(BRAND.colors.cobalt,.13)});color:#fff;
   border-color:rgba(56,189,248,.45);box-shadow:inset 2px 0 0 var(--arc),0 0 22px -8px rgba(56,189,248,.6)}
 
 .jv-msg{display:flex;flex-direction:column;gap:5px;max-width:88%}
@@ -107,7 +108,7 @@ const CSS = `
 .jv-msg.me .jv-tag{color:rgba(224,162,43,.7)}
 .jv-body{padding:12px 15px;border-radius:11px;font-size:14px;line-height:1.68;white-space:pre-wrap;word-break:break-word}
 /* the assistant speaks from the machine: cobalt plate, lit cyan edge */
-.jv-msg.them .jv-body{background:linear-gradient(90deg,rgba(43,77,224,.2),rgba(43,77,224,.06));
+.jv-msg.them .jv-body{background:linear-gradient(90deg,${alpha(BRAND.colors.cobalt,.2)},${alpha(BRAND.colors.cobalt,.06)});
   border:1px solid rgba(56,189,248,.2);color:#DCF3FB;
   box-shadow:inset 2px 0 0 var(--arc),0 0 26px -12px rgba(56,189,248,.6)}
 /* the human speaks in gold */
@@ -172,7 +173,7 @@ const CSS = `
 .jv-psearch:focus{outline:none;border-color:rgba(56,189,248,.55)}
 .jv-prow{display:block;width:100%;text-align:left;background:none;border:0;color:#CDEBF8;padding:8px 10px;
   border-radius:8px;cursor:pointer;font-size:13px;font-family:inherit;transition:.14s}
-.jv-prow:hover{background:linear-gradient(90deg,rgba(43,77,224,.42),rgba(43,77,224,.12));color:#fff;
+.jv-prow:hover{background:linear-gradient(90deg,${alpha(BRAND.colors.cobalt,.42)},${alpha(BRAND.colors.cobalt,.12)});color:#fff;
   box-shadow:inset 2px 0 0 var(--arc)}
 .jv-prow i{display:block;font-style:normal;font-size:11px;color:rgba(127,216,255,.48);margin-top:1px}
 .jv-pempty{padding:12px;text-align:center;color:rgba(127,216,255,.42);font-size:12.5px}

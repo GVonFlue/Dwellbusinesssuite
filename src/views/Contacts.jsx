@@ -30,6 +30,7 @@ import {
 import { addDays, daysUntil, fmtShort, fmtLong } from '../lib/dates';
 import { usd, uid, phoneFmt } from '../lib/format';
 import { expectedPrice } from '../lib/txn';
+import { BRAND } from '../lib/brand';
 
 /* ------------------------------------------------------------------ helpers */
 
@@ -738,7 +739,7 @@ export function ContactModal({ contact, ctx, onClose, isNew }) {
                   <div key={it.key} className={'onb-item' + (s.done ? ' done' : '') + (over ? ' over' : '')}>
                     <span className="onb-check" onClick={toggle}>
                       {s.done
-                        ? <CheckCircle2 size={17} style={{ color: '#1F9D55' }} />
+                        ? <CheckCircle2 size={17} style={{ color: BRAND.colors.green }} />
                         : <Circle size={17} style={{ color: '#C9C6DC' }} />}
                     </span>
                     <span className="onb-label" onClick={toggle}>{it.label}</span>

@@ -49,13 +49,15 @@ import {
 import { initials, phoneFmt } from '../lib/format';
 import { DeadlineRow } from './Transactions';
 import { PCS_CSS } from './pcs.css.js';
+import { alpha } from '../lib/color';
+import { BRAND } from '../lib/brand';
 
 /* ============================================================================
    plumbing — everything here is pure and lives above the components so the
    arithmetic can be read in one place.
    ========================================================================== */
 
-const PALETTE = ['#6B73C9', '#5C76EE', '#1338DE', '#C8A24A', '#1F9D55', '#2BA7A0', '#7A5CC8', '#B0606A'];
+const PALETTE = ['#6B73C9', '#5C76EE', BRAND.colors.cobalt, BRAND.colors.gold, BRAND.colors.green, '#2BA7A0', '#7A5CC8', '#B0606A'];
 
 /** the anchor is spelled out in every rule and explanation this screen writes */
 const ANCHOR_WORDS = 'report date';
@@ -415,7 +417,7 @@ function Rollup({ ctx, families, squeeze, cfg }) {
                 <BarChart data={bars} margin={{ top: 6, right: 8, bottom: 4, left: -18 }}>
                   <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#8E89A8' }} axisLine={false} tickLine={false} interval={0} />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#8E89A8' }} axisLine={false} tickLine={false} />
-                  <Tooltip formatter={v => [`${v} famil${v === 1 ? 'y' : 'ies'}`, 'reporting']} labelStyle={{ fontWeight: 700 }} cursor={{ fill: 'rgba(19,56,222,.05)' }} />
+                  <Tooltip formatter={v => [`${v} famil${v === 1 ? 'y' : 'ies'}`, 'reporting']} labelStyle={{ fontWeight: 700 }} cursor={{ fill: alpha(BRAND.colors.cobalt,.05) }} />
                   <Bar dataKey="n" radius={[6, 6, 0, 0]} barSize={22}>
                     {bars.map((b, i) => <Cell key={b.key} fill={b.n ? PALETTE[i % PALETTE.length] : '#EEF0FA'} />)}
                   </Bar>
@@ -556,7 +558,7 @@ function FamilyModal({ ctx, c, cfg, offsets, statuses, sq, onClose }) {
       </>}
       badges={<>
         <span className={'pcs-dir ' + d.key}>{d.label}</span>
-        <Pill color="#1338DE">{statuses.includes(p.status) ? p.status : statuses[0]}</Pill>
+        <Pill color="${BRAND.colors.cobalt}">{statuses.includes(p.status) ? p.status : statuses[0]}</Pill>
         {isDate(p.reportDate)
           ? <Tag>RNLTD {fmtShort(p.reportDate)} · {sq && sq.known ? (sq.have < 0 ? whenWords(sq.have) : `in ${dayWord(sq.have)}`) : ''}</Tag>
           : <Tag>no report date</Tag>}
