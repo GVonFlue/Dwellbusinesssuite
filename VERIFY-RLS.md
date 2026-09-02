@@ -13,6 +13,29 @@ section 1a is the part of this document that exists for them.
 
 ---
 
+## 0a. Run `RLS-AUDIT.sql` first — it takes a minute and needs no logins
+
+Paste `RLS-AUDIT.sql` into the Supabase SQL Editor and run it. It changes
+nothing. It reads every policy on every table and raises if any table has RLS
+off, or carries a permissive policy whose expression is literally `true`.
+
+**Do this before the twenty minutes below, because this document cannot catch
+what that file catches.** Everything from section 0 on is behavioural — sign in,
+try to read, confirm you cannot. That is the right check and it is not
+sufficient. On 23 Aug 2026 a sibling install passed exactly that kind of review
+twice in one day while its `leads` table carried five correct policies plus one
+leftover `using (true)`. Permissive policies OR together, so the leftover won and
+every authenticated session could read and write every row. Counting the policies
+returned six. Reading the five sensibly-named ones returned five correct answers.
+The table was wide open the whole time.
+
+The two are not alternatives. `RLS-AUDIT.sql` reads what the policies **say**;
+everything below observes what they **do**. A policy can be non-`true` and still
+wrong — checking the wrong column, or the wrong role — and only the sections
+below will find that.
+
+---
+
 ## 0. Setup
 
 Browser profiles (normal, incognito, a second browser), signed in as:

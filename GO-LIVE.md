@@ -406,9 +406,14 @@ use `vercel dev` if you need them locally, or work in demo mode. Every one of th
 - [ ] `npm run build` exits 0 locally and the Vercel build is green
 - [ ] `node tests/run.mjs` → 298 checks pass (`npm i --no-save jsdom` first)
 - [ ] Sign-in works; the leader's `crm_users` row exists with `role = 'leader'`
+- [ ] **`RLS-AUDIT.sql` run in the Supabase SQL Editor and reporting OK.** One
+      minute, no logins. It raises if any table has RLS off or carries a
+      permissive policy with a `true` expression — the failure a behavioural
+      review has already missed twice in one day on a sibling install
 - [ ] **`VERIFY-RLS.md` run end to end, with the date and your name written into
       the client's notes.** This is the one step with no automated substitute —
-      RLS is Postgres, not something jsdom can test
+      RLS is Postgres, not something jsdom can test. The audit above proves
+      nothing is trivially open; this proves the expressions are right
 - [ ] Both storage buckets show `public = false`
 - [ ] Seat limit matches what they bought; adding one past it is refused by the
       database with "Seat limit is N"
