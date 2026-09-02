@@ -366,7 +366,7 @@ function ListingPanel({ ctx, aiOn, setAiOn }) {
   return (
     <Card
       sub="Pick the seller or the listing, check the details, set your MLS character limit. Output is a draft you edit."
-      right={record ? <Pill color="#1338DE">{contact ? contact.name : txn.address}</Pill> : null}>
+      right={record ? <Pill color="${BRAND.colors.cobalt}">{contact ? contact.name : txn.address}</Pill> : null}>
 
       <div className="fgrid">
         <Field label="Prefill from" full>
@@ -514,7 +514,7 @@ function NetSheetPanel({ ctx, aiOn, setAiOn }) {
   return (
     <Card
       sub="Every figure below is arithmetic done on this screen. The model only writes the plain-language notes — it never touches a number."
-      right={<Pill color="#1F9D55">{usd(calc.net)} net</Pill>}>
+      right={<Pill color="${BRAND.colors.green}">{usd(calc.net)} net</Pill>}>
 
       <div className="fgrid">
         <Field label="Prefill from a listing" full>
@@ -552,13 +552,13 @@ function NetSheetPanel({ ctx, aiOn, setAiOn }) {
               <tr key={r.key}>
                 <td style={{ fontWeight: 600 }}>{r.label}</td>
                 <td style={{ whiteSpace: 'normal', color: '#7B76A0', fontSize: 12.5, maxWidth: 380 }}>{notes[r.key] || '—'}</td>
-                <td style={{ textAlign: 'right', fontFamily: "'Space Grotesk'", fontWeight: 600, color: r.amount < 0 ? '#B03030' : '#111528' }}>{signed(r.amount)}</td>
+                <td style={{ textAlign: 'right', fontFamily: "'Space Grotesk'", fontWeight: 600, color: r.amount < 0 ? '#B03030' : BRAND.colors.ink }}>{signed(r.amount)}</td>
               </tr>
             ))}
             <tr>
-              <td style={{ fontWeight: 800, borderTop: '2px solid #111528' }}>Estimated net to seller</td>
-              <td style={{ borderTop: '2px solid #111528' }} />
-              <td style={{ textAlign: 'right', fontWeight: 800, fontSize: 16, fontFamily: "'Space Grotesk'", borderTop: '2px solid #111528' }}>{usd(calc.net)}</td>
+              <td style={{ fontWeight: 800, borderTop: '2px solid ${BRAND.colors.ink}' }}>Estimated net to seller</td>
+              <td style={{ borderTop: '2px solid ${BRAND.colors.ink}' }} />
+              <td style={{ textAlign: 'right', fontWeight: 800, fontSize: 16, fontFamily: "'Space Grotesk'", borderTop: '2px solid ${BRAND.colors.ink}' }}>{usd(calc.net)}</td>
             </tr>
           </tbody>
         </table>
@@ -689,7 +689,7 @@ function OfferPanel({ ctx, aiOn, setAiOn }) {
   return (
     <Card
       sub="Two to four offers on one listing, side by side on what the seller actually nets. Net proceeds are computed here; the model writes the terms and risk columns."
-      right={priced.length ? <Pill color="#1338DE">{priced.length} priced</Pill> : null}>
+      right={priced.length ? <Pill color="${BRAND.colors.cobalt}">{priced.length} priced</Pill> : null}>
 
       <div className="fgrid">
         <Field label="Listing" full>
@@ -714,7 +714,7 @@ function OfferPanel({ ctx, aiOn, setAiOn }) {
         <div key={o.id} style={{ border: '1px solid #E8E9F2', borderRadius: 14, padding: 14, marginTop: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
             <b style={{ fontSize: 13.5 }}>{o.label || `Offer ${i + 1}`}</b>
-            <Pill color="#1F9D55">{usd(rowsBase[i].netProceeds)} net</Pill>
+            <Pill color="${BRAND.colors.green}">{usd(rowsBase[i].netProceeds)} net</Pill>
             {offers.length > 2 && (
               <Btn sm kind="d" style={{ marginLeft: 'auto' }} onClick={() => setOffers(list => list.filter(x => x.id !== o.id))} icon={<X size={13} />}>Remove</Btn>
             )}
@@ -771,7 +771,7 @@ function OfferPanel({ ctx, aiOn, setAiOn }) {
                       {r.contingencies.length > 0 && <div style={{ fontSize: 11.5, color: '#8E89A8' }}>{r.contingencies.join(', ')}</div>}
                     </td>
                     <td style={{ textAlign: 'right', fontFamily: "'Space Grotesk'", fontWeight: 600 }}>{usd(r.price)}</td>
-                    <td style={{ textAlign: 'right', fontFamily: "'Space Grotesk'", fontWeight: 700, color: r.netProceeds === best && r.price > 0 ? '#1F9D55' : '#111528' }}>
+                    <td style={{ textAlign: 'right', fontFamily: "'Space Grotesk'", fontWeight: 700, color: r.netProceeds === best && r.price > 0 ? BRAND.colors.green : BRAND.colors.ink }}>
                       {usd(r.netProceeds)}
                       <div style={{ fontSize: 11, fontWeight: 600, color: '#8E89A8' }}>less {usd(Math.abs(r.deductions))}</div>
                     </td>
@@ -1013,7 +1013,7 @@ function ReactivationPanel({ ctx, aiOn, setAiOn }) {
   return (
     <Card
       sub="Contacts nobody has spoken to in a while, one at a time, each draft written off the last real conversation on the record."
-      right={<Pill color={stale.length ? '#D98A3D' : '#1F9D55'}>{stale.length} over {n(days)} days</Pill>}>
+      right={<Pill color={stale.length ? '#D98A3D' : BRAND.colors.green}>{stale.length} over {n(days)} days</Pill>}>
 
       <div className="fgrid">
         <Field label="Older than (days)" hint="90 by default. Move it to match how you work.">
@@ -1179,7 +1179,7 @@ function FeedbackPanel({ ctx, aiOn, setAiOn }) {
   return (
     <Card
       sub="Feedback lives on the seller's timeline as feedback entries. Log it as it comes in, compile it once a week."
-      right={contact ? <Pill color="#1338DE">{entries.length} logged</Pill> : null}>
+      right={contact ? <Pill color="${BRAND.colors.cobalt}">{entries.length} logged</Pill> : null}>
 
       <div className="fgrid">
         <Field label="Listing / seller" full>
@@ -1297,7 +1297,7 @@ const TOOLS = [
     key: 'listing',
     label: 'Listing description',
     icon: Home,
-    accent: '#1338DE',
+    accent: BRAND.colors.cobalt,
     what: 'Writes the MLS description, three social captions and an email blast from the property details you enter.',
     needs: 'Needs a listing contact',
     state: b => (b.sellers.length + b.listings.length > 0
@@ -1309,7 +1309,7 @@ const TOOLS = [
     key: 'netsheet',
     label: 'Seller net sheet',
     icon: Calculator,
-    accent: '#1F9D55',
+    accent: BRAND.colors.green,
     what: 'Shows the seller what they walk away with — price less payoff, commission, closing costs and credits, line by line.',
     needs: 'Needs a sale price',
     state: b => (b.pricedListings.length > 0
@@ -1323,7 +1323,7 @@ const TOOLS = [
     key: 'offers',
     label: 'Offer comparison',
     icon: Scale,
-    accent: '#C8A24A',
+    accent: BRAND.colors.gold,
     what: 'Puts two to four offers side by side on what the seller actually nets, with the terms and the risks spelled out.',
     needs: 'Needs at least 2 offers on one listing',
     state: b => (b.listings.length > 0

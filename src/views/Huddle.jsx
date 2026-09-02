@@ -47,6 +47,7 @@ import { computeCommission, agentPlan } from '../lib/commission';
 import { usd } from '../lib/format';
 import { apiPost } from '../lib/data';
 import { closedOn, txGross } from '../lib/txn';
+import { BRAND } from '../lib/brand';
 
 /* a neutral plan: gross is plan-independent, but computeCommission wants one.
    Going through the engine means one definition of "gross" exists app-wide. */
@@ -547,12 +548,12 @@ export default function Huddle({ ctx }) {
 
       {/* --------------------------------------------------------- the lists */}
       <div className="grid2" style={{ marginTop: 16 }}>
-        <ListEdit title="Wins" icon={<Trophy size={15} style={{ color: '#1F9D55' }} />} tone="win"
+        <ListEdit title="Wins" icon={<Trophy size={15} style={{ color: BRAND.colors.green }} />} tone="win"
           items={wins} onChange={touch(setWins)} suggestions={suggest.wins}
           onUseSuggestion={s => { setDirty(true); setWins(w => [...w, s]); }}
           placeholder="Central Park cleared to close three days early"
           empty="Nothing logged yet. One line per win, named." />
-        <ListEdit title="Misses" icon={<AlertTriangle size={15} style={{ color: '#D14343' }} />} tone="bad"
+        <ListEdit title="Misses" icon={<AlertTriangle size={15} style={{ color: BRAND.colors.red }} />} tone="bad"
           items={misses} onChange={touch(setMisses)} suggestions={suggest.misses}
           onUseSuggestion={s => { setDirty(true); setMisses(m => [...m, s]); }}
           placeholder="Two pool leads sat unclaimed for a fortnight"
@@ -560,7 +561,7 @@ export default function Huddle({ ctx }) {
       </div>
 
       <div style={{ marginTop: 16 }}>
-        <ListEdit title="Focus this week" icon={<Target size={15} style={{ color: '#1338DE' }} />} tone="warn"
+        <ListEdit title="Focus this week" icon={<Target size={15} style={{ color: BRAND.colors.cobalt }} />} tone="warn"
           items={focus} onChange={touch(setFocus)} suggestions={suggest.focus}
           onUseSuggestion={s => { setDirty(true); setFocus(f => [...f, s]); }}
           placeholder="Chase the financing commitment on Osage — 21 days out"

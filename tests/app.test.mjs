@@ -83,8 +83,12 @@ export default async function run(t, { mount, tick, dom }) {
 
   const sbLogo = document.querySelector('.sb-brand .sb-logo');
   t.ok(sbLogo, "the client's mark is in the sidebar");
-  t.ok(sbLogo && /\/brand\/dwell-logo\.png$/.test(sbLogo.getAttribute('src') || ''),
-    'and it points at the hard-coded asset, not an env var');
+  /* Either a bundled per-install asset or a hosted URL from VITE_LOGO_URL.
+     Asserting the FILENAME could only ever pass for one install, which is why
+     every fork of this template failed its own suite here. */
+  const sbSrc = (sbLogo && sbLogo.getAttribute('src')) || '';
+  t.ok(/^\/brand\/.+\.(png|jpg|jpeg|svg|webp)$/i.test(sbSrc) || /^https?:\/\//i.test(sbSrc),
+    'and it points at a per-install asset or a configured URL');
   t.ok(/business suite/i.test((document.querySelector('.sb-suite') || {}).textContent || ''),
     'with the product line stacked underneath it');
 

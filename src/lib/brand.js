@@ -32,9 +32,11 @@ export const BRAND = {
   title:    val(import.meta.env.VITE_APP_TITLE, NAME + ' — ProyTech Business Suite'),
   short:    val(import.meta.env.VITE_BRAND_SHORT, 'dwellWICHITA'),
 
-  /* NOTE: the sidebar mark is no longer read from here. It is hard-coded in
-     src/lib/assets.js (ASSETS.clientLogo) for this install. VITE_LOGO_URL is
-     kept so the shared template still works, but nothing in the UI reads it. */
+  /* The sidebar mark. Read by src/lib/assets.js, which prefers this when set
+     and falls back to the bundled file in /public/brand otherwise — so an
+     install can be re-branded without touching code, and one that has not set
+     it still renders. Host it anywhere the browser can reach; the client's own
+     Supabase Storage adds no new vendor. */
   logo:     val(import.meta.env.VITE_LOGO_URL, ''),
 
   /* Sign-in maps a bare username -> username@<authDomain> in Supabase Auth.

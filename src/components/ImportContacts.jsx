@@ -31,6 +31,7 @@ import { stagesOf, stageLabel, DEFAULT_SOURCES } from '../lib/settings';
 import { usd, phoneFmt } from '../lib/format';
 import { fmtShort } from '../lib/dates';
 import {
+import { BRAND } from '../lib/brand';
   parseDelimited, autoMap, columnsByField, sampleFor, distinctValues,
   guessValueMap, buildPlan, dateOrderHint, fallbackStage, failuresCsv,
   FIELDS, NEW_SOURCE_KEY,
@@ -845,28 +846,28 @@ const IMP_CSS = `
 .imp-steps{display:flex;gap:6px;flex-wrap:wrap}
 .imp-step{font-size:11.5px;font-weight:700;letter-spacing:.02em;color:#8E89A8;background:#F1F2FA;
   border:1px solid #E4E7F5;border-radius:999px;padding:4px 11px}
-.imp-step.on{background:#1338DE;border-color:#1338DE;color:#fff}
+.imp-step.on{background:${BRAND.colors.cobalt};border-color:${BRAND.colors.cobalt};color:#fff}
 
 .imp-drop{border:2px dashed #C9CEEA;border-radius:18px;background:#F8F9FE;padding:38px 20px;text-align:center;
   cursor:pointer;color:#5A5680;transition:border-color .12s,background .12s}
-.imp-drop:hover,.imp-drop.on{border-color:#1338DE;background:#F1F4FF}
-.imp-drop svg{color:#1338DE}
-.imp-drop-t{font-size:15px;font-weight:700;color:#111528;margin-top:10px}
+.imp-drop:hover,.imp-drop.on{border-color:${BRAND.colors.cobalt};background:#F1F4FF}
+.imp-drop svg{color:${BRAND.colors.cobalt}}
+.imp-drop-t{font-size:15px;font-weight:700;color:${BRAND.colors.ink};margin-top:10px}
 .imp-drop-s{font-size:12.5px;color:#8E89A8;margin-top:4px}
 
 .imp-note{font-size:12.5px;line-height:1.55;color:#5A5680;background:#F6F7FD;border:1px solid #E9EBF7;
   border-radius:12px;padding:10px 13px;margin-top:12px}
-.imp-note b{color:#111528}
+.imp-note b{color:${BRAND.colors.ink}}
 .imp-note.warn{background:#FFF8EC;border-color:#F2E2C2;color:#7A5A20}
 .imp-warn{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;line-height:1.5;color:#7A5A20;
   background:#FFF8EC;border:1px solid #F2E2C2;border-radius:12px;padding:10px 13px;margin-top:12px}
 .imp-warn svg{flex:none;margin-top:2px}
 
-.imp-h2{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:#111528;
+.imp-h2{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:${BRAND.colors.ink};
   margin:20px 0 9px;padding-bottom:6px;border-bottom:1px solid #EEF0FA}
 .imp-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:10px}
 .imp-head-l{font-size:12.5px;color:#5A5680;line-height:1.5;max-width:640px}
-.imp-head-l b{color:#111528}
+.imp-head-l b{color:${BRAND.colors.ink}}
 .imp-head-r{display:flex;align-items:flex-end;gap:10px}
 .imp-head-r .field{margin:0;min-width:190px}
 
@@ -880,12 +881,12 @@ const IMP_CSS = `
 .imp-dim{color:#928DAD}
 .imp-scroll{max-height:330px;overflow:auto}
 .imp-t-new{background:#E7F5EC;color:#1F7A45}
-.imp-t-upd{background:#EAF0FF;color:#1338DE}
+.imp-t-upd{background:#EAF0FF;color:${BRAND.colors.cobalt}}
 
 .imp-vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(430px,1fr));gap:8px}
 .imp-vrow{display:flex;align-items:center;gap:8px;background:#F8F9FE;border:1px solid #E9EBF7;
   border-radius:11px;padding:7px 10px}
-.imp-vfrom{font-size:12.5px;font-weight:700;color:#111528;max-width:170px;overflow:hidden;
+.imp-vfrom{font-size:12.5px;font-weight:700;color:${BRAND.colors.ink};max-width:170px;overflow:hidden;
   text-overflow:ellipsis;white-space:nowrap}
 .imp-vn{font-size:11px;font-weight:700;color:#8E89A8;background:#EEF0FA;border-radius:999px;padding:2px 7px}
 .imp-varr{color:#C9C6DC;flex:none}
@@ -895,7 +896,7 @@ const IMP_CSS = `
 .imp-daterow .field{margin:0;min-width:200px}
 .imp-radio{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:#5A5680;
   background:#F8F9FE;border:1px solid #E9EBF7;border-radius:10px;padding:7px 12px;cursor:pointer}
-.imp-radio.on{border-color:#1338DE;color:#1338DE;background:#F1F4FF}
+.imp-radio.on{border-color:${BRAND.colors.cobalt};color:${BRAND.colors.cobalt};background:#F1F4FF}
 
 .imp-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:4px}
 .imp-kpi{background:#F8F9FE;border:1px solid #E9EBF7;border-radius:14px;padding:11px 13px}
@@ -903,24 +904,24 @@ const IMP_CSS = `
 .imp-kpi.warn{background:#FFF8EC;border-color:#F2E2C2}
 .imp-kpi.bad{background:#FDF1F1;border-color:#F2D2D2}
 .imp-kl{font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:#8E89A8;line-height:1.35}
-.imp-kv{font-family:'Space Grotesk',sans-serif;font-size:23px;font-weight:600;color:#111528;margin-top:3px}
+.imp-kv{font-family:'Space Grotesk',sans-serif;font-size:23px;font-weight:600;color:${BRAND.colors.ink};margin-top:3px}
 
 .imp-duphead{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
   font-size:12.5px;color:#5A5680;margin-bottom:9px}
 
 .imp-run{padding:44px 10px;text-align:center}
-.imp-run-t{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;color:#111528}
+.imp-run-t{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;color:${BRAND.colors.ink}}
 .imp-run-s{font-size:12.5px;color:#8E89A8;margin-top:10px}
 .imp-bar{height:9px;border-radius:999px;background:#EEF0FA;overflow:hidden;margin:16px auto 0;max-width:520px}
-.imp-bar i{display:block;height:100%;background:#1338DE;border-radius:999px;transition:width .15s linear}
+.imp-bar i{display:block;height:100%;background:${BRAND.colors.cobalt};border-radius:999px;transition:width .15s linear}
 
 .imp-done{display:flex;align-items:center;gap:12px;background:#F1FAF4;border:1px solid #D5EEDF;
   border-radius:14px;padding:13px 15px;margin-bottom:12px}
-.imp-done svg{color:#1F9D55;flex:none}
-.imp-done-t{font-family:'Space Grotesk',sans-serif;font-size:15.5px;font-weight:600;color:#111528}
+.imp-done svg{color:${BRAND.colors.green};flex:none}
+.imp-done-t{font-family:'Space Grotesk',sans-serif;font-size:15.5px;font-weight:600;color:${BRAND.colors.ink}}
 .imp-done-s{font-size:12.5px;color:#5A5680;margin-top:2px}
-.imp-done-s b{color:#111528}
-.imp-done-s b.bad{color:#D14343}
+.imp-done-s b{color:${BRAND.colors.ink}}
+.imp-done-s b.bad{color:${BRAND.colors.red}}
 
 @media (max-width:720px){
   .imp-vgrid{grid-template-columns:1fr}

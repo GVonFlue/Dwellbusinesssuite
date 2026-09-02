@@ -40,6 +40,8 @@ import { capProgress, agentPlan, computeCommission } from '../lib/commission';
 import { usd, sum, pct } from '../lib/format';
 import { Card, Kpi, Btn, Empty, SecTitle, Pill, LegalNote, Drill } from '../components/ui';
 import { FLAT_PLAN, closedOn, expectedPrice, onClosedDate, txGross } from '../lib/txn';
+import { alpha } from '../lib/color';
+import { BRAND } from '../lib/brand';
 
 /* ============================================================ small helpers */
 
@@ -92,9 +94,9 @@ function whenWords(n) {
 }
 
 const WHEN_STYLE = {
-  overdue: { background: 'rgba(209,67,67,.12)', color: '#B03030' },
+  overdue: { background: alpha(BRAND.colors.red,.12), color: '#B03030' },
   urgent: { background: '#FFF0E0', color: '#A85B10' },
-  soon: { background: '#EEF0FA', color: '#3B3470' },
+  soon: { background: '#EEF0FA', color: BRAND.colors.indigo },
   far: { background: '#F1F2F8', color: '#7B76A0' },
   none: { background: '#F1F2F8', color: '#7B76A0' },
 };
@@ -429,7 +431,7 @@ export function buildModel(ctx) {
     };
   });
   funnelRows.push({
-    key: 'closed', label: 'Closed', short: 'Closed', color: '#1F9D55',
+    key: 'closed', label: 'Closed', short: 'Closed', color: BRAND.colors.green,
     n: contacts.filter(hasClosedTxn).length,
   });
   const funnelTop = funnelRows.length ? funnelRows[0].n : 0;
@@ -580,8 +582,8 @@ function DatesSection({ ctx, m }) {
           : 'No active transactions yet.'}
         right={
           <div style={{ display: 'flex', gap: 6 }}>
-            {overdue > 0 && <Pill color="#D14343">{overdue} overdue</Pill>}
-            {hard > 0 && <Pill color="#C8A24A">{hard} inside {hardHours}h</Pill>}
+            {overdue > 0 && <Pill color="${BRAND.colors.red}">{overdue} overdue</Pill>}
+            {hard > 0 && <Pill color="${BRAND.colors.gold}">{hard} inside {hardHours}h</Pill>}
           </div>
         }
       >
@@ -620,8 +622,8 @@ function DatesSection({ ctx, m }) {
           onClose={() => setDrill(false)}
         >
           <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' }}>
-            {overdue > 0 && <Pill color="#D14343">{overdue} overdue</Pill>}
-            {hard > 0 && <Pill color="#C8A24A">{hard} inside {hardHours}h</Pill>}
+            {overdue > 0 && <Pill color="${BRAND.colors.red}">{overdue} overdue</Pill>}
+            {hard > 0 && <Pill color="${BRAND.colors.gold}">{hard} inside {hardHours}h</Pill>}
             <Btn sm kind="g" style={{ marginLeft: 'auto' }} onClick={() => { setDrill(false); ctx.go('transactions', { focus: 'dates' }); }}>
               Open the full board
             </Btn>
@@ -651,7 +653,7 @@ function DeadlineCard({ r, ctx, hardHours }) {
           </div>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div className="cd-date" style={{ color: r.urg === 'overdue' ? '#B03030' : '#111528' }}>
+          <div className="cd-date" style={{ color: r.urg === 'overdue' ? '#B03030' : BRAND.colors.ink }}>
             {fmtShort(r.iso)}
           </div>
           <div style={{ fontSize: 11, color: '#8E89A8' }}>{fmtLong(r.iso)}</div>
@@ -664,7 +666,7 @@ function DeadlineCard({ r, ctx, hardHours }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap', marginTop: 8 }}>
         <span className="cd-count">{r.dl.count === 'business' ? 'business days' : 'calendar days'}</span>
         {r.hard && <span className="cd-flag"><AlertTriangle size={10} style={{ verticalAlign: -1 }} /> inside {hardHours}h</span>}
-        {r.extended && <span className="cd-flag" style={{ background: '#EEF0FA', color: '#3B3470' }}>extended</span>}
+        {r.extended && <span className="cd-flag" style={{ background: '#EEF0FA', color: BRAND.colors.indigo }}>extended</span>}
         {ctx.isLeader && r.txn.owner_id && ctx.users_by_id[r.txn.owner_id] && (
           <span className="cd-count" style={{ background: '#F1F2F8' }}>
             {ctx.users_by_id[r.txn.owner_id].name}
@@ -760,7 +762,7 @@ function CapSection({ ctx, m }) {
               <b style={{ fontSize: 13.5 }}>{r.user.name || r.user.email || 'Seat'}</b>
               {r.user.active === false && <span className="pool-chip">inactive seat</span>}
               {g.period && <span style={{ fontSize: 11.5, color: '#8E89A8' }}>{g.period.label} cap period</span>}
-              {g.capped && <Pill color="#1F9D55">capped out</Pill>}
+              {g.capped && <Pill color="${BRAND.colors.green}">capped out</Pill>}
               <span style={{ marginLeft: 'auto', fontSize: 12.5, fontWeight: 700, color: '#56527a' }}>
                 {noCap ? 'no cap configured' : `${usd(g.paid)} of ${usd(g.cap)}`}
               </span>
@@ -985,7 +987,7 @@ function SourceSection({ m }) {
     <Card
       title="Lead source ROI"
       sub={`Ranked by closed GCI, not lead count. A source that delivers fifty leads and no closings is a cost, not a channel. GCI and units are what closed in calendar ${t.year} — the same window as the GCI tile. Leads is every contact currently attributed to that source, whenever it arrived, so "per lead" mixes this year's dollars with the whole book.`}
-      right={t.gci > 0 ? <Pill color="#1F9D55">{usd(t.gci)} attributed in {t.year}</Pill> : null}
+      right={t.gci > 0 ? <Pill color="${BRAND.colors.green}">{usd(t.gci)} attributed in {t.year}</Pill> : null}
     >
       {!rows.length && <Empty>No contacts have a source recorded yet.</Empty>}
 
@@ -1033,7 +1035,7 @@ function ScorecardSection({ m }) {
     <Card
       title="Team scorecard"
       sub={`Open pipeline (open stages, excluding contacts already on the transactions board), appointments held in the last ${m.activity.window} days, and closed production in calendar ${m.pipeline.year} by actual close date. A seat that has been deactivated but still owns closed deals stays on this table, so these rows always add up to the GCI tile. Fall-through is measured over RESOLVED deals only — closed plus fell — because a deal still under contract has not had its chance to fall. Average price divides by transactions rather than units, so representing both sides of one house does not halve it.`}
-      right={<Pill color="#3B3470">team leader view</Pill>}
+      right={<Pill color="${BRAND.colors.indigo}">team leader view</Pill>}
     >
       {!rows.length && <Empty>No active seats to compare.</Empty>}
 
@@ -1144,7 +1146,7 @@ function FollowupsSection({ ctx, m }) {
     <Card
       title="Follow-ups and hot leads"
       sub={`Anything due today or overdue, plus every contact in a stage worth ${pct(m.hotThreshold)} or better. Two lists, so a pile of overdue calls can never bury the deal that is about to sign.`}
-      right={total ? <Pill color="#1338DE">{total}</Pill> : null}
+      right={total ? <Pill color="${BRAND.colors.cobalt}">{total}</Pill> : null}
     >
       {!total && (
         <Empty>Nothing is due and nothing is hot. Enjoy it — then go set an appointment.</Empty>
@@ -1332,7 +1334,7 @@ export default function Dashboard({ ctx }) {
       {/* -------------------------------------------------------- toolbar */}
       <div className="dash-arrange">
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#56527a' }}>
-          <CalendarClock size={15} style={{ color: '#1338DE' }} />
+          <CalendarClock size={15} style={{ color: BRAND.colors.cobalt }} />
           {m.due.overdue > 0
             ? <b style={{ color: '#B03030' }}>{m.due.overdue} deadline{m.due.overdue === 1 ? '' : 's'} overdue.</b>
             : m.due.hard > 0
