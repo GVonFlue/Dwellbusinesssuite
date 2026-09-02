@@ -1,4 +1,5 @@
 import { SUPA_KEY, SUPA_URL } from './_env.js';
+import { guard, sweep } from './_guard.js';
 /* ============================================================================
    /api/notify — deadline reminders, and the only place email is sent from.
 
@@ -129,17 +130,71 @@ const body = (d, txn, tierLabel) => {
   </div>`;
 };
 
+/* ---------------------------------------------------------------- recipients
+
+   THE CALLER MAY NARROW THE ALLOWLIST. IT CANNOT EXTEND IT.
+
+   The ad-hoc path used to take `to` straight from the request body. Combined
+   with no authentication, that made this an open relay: a stranger chose the
+   recipients AND the subject AND the body, and it left from a domain verified
+   in Resend. The damage is not a stray email, it is the reputation of a domain
+   a client's business runs on.
+
+   Authentication alone would not fix it — a signed-in agent could still mail
+   anyone. So the allowlist is built HERE, from sources the caller cannot write:
+   NOTIFY_TO on the deployment, plus the active leaders' own addresses.
+
+   An unknown address is dropped rather than fatal: one stale entry must not
+   silently stop the leaders being told. */
+const norm = e => String(e || '').trim().toLowerCase();
+
+export function pickRecipients(asked, allowed) {
+  const want = (Array.isArray(asked) ? asked : []).map(norm).filter(e => e.includes('@'));
+  if (!want.length) return { to: allowed.slice(), dropped: [] };
+  return {
+    to: want.filter(e => allowed.includes(e)),
+    dropped: want.filter(e => !allowed.includes(e)),
+  };
+}
+
+/** Active leaders, read with the service key — a source the caller cannot
+ *  write through this endpoint. */
+async function leaderEmails() {
+  try {
+    const rows = await sbGet('crm_users?role=eq.leader&active=is.true&select=email');
+    return (rows || []).map(r => norm(r.email)).filter(e => e.includes('@'));
+  } catch { return []; }
+}
+
 /* -------------------------------------------------------------- the handler */
 export default async function handler(req, res) {
   const isCron = String(req.query?.cron || '') === '1' || String(req.headers['x-vercel-cron'] || '') !== '';
 
-  /* ad-hoc single send, kept from the source repo's notify path */
+  /* ad-hoc single send, kept from the source repo's notify path.
+
+     GUARDED. This path was reachable by anyone, and it took its recipients from
+     the request body — a stranger picked who received arbitrary text from a
+     domain verified in Resend. requireAuth closes the door; the allowlist below
+     means being through the door is still not permission to mail anyone. */
   if (!isCron) {
+    const gate = await guard(req, res, {
+      name: 'notify-adhoc', perIp: 20, windowMin: 10, perDay: 200,
+      maxChars: 4000, requireAuth: true,
+    });
+    if (!gate.ok) return;
+    sweep();
+
     if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'POST only' });
     let b = req.body; if (typeof b === 'string') { try { b = JSON.parse(b); } catch { b = {}; } }
     b = b || {};
-    const to = (Array.isArray(b.to) ? b.to : String(process.env.NOTIFY_TO || '').split(','))
-      .map(s => String(s).trim()).filter(s => s.includes('@'));
+    const envTo = String(process.env.NOTIFY_TO || '').split(',').map(norm).filter(e => e.includes('@'));
+    const allowed = [...new Set([...envTo, ...(await leaderEmails())])];
+    if (!allowed.length) {
+      console.error('[notify] no allowed recipients: NOTIFY_TO is unset and no active leader has an email');
+      return res.status(200).json({ ok: false, reason: 'no_recipients' });
+    }
+    const { to, dropped } = pickRecipients(b.to, allowed);
+    if (dropped.length) console.error(`[notify] dropped ${dropped.length} recipient(s) not on the allowlist`);
     const r = await send({
       to,
       subject: b.subject || 'ProyTech CRM',
@@ -148,12 +203,25 @@ export default async function handler(req, res) {
     return res.status(200).json(r);
   }
 
-  /* cron mode */
+  /* cron mode.
+
+     CRON_SECRET IS REQUIRED, NOT OPTIONAL. It used to be `if (secret) { check }`
+     — so an install that never set the variable had no check at all, and the
+     endpoint that mails every deadline in the business to its leaders was open.
+     A protection that switches itself off when unconfigured is not a
+     protection; it is a note asking somebody to remember.
+
+     Fails CLOSED: an unset secret refuses the run and says why in the log,
+     rather than running it for anyone. A missed reminder cycle is recoverable.
+     An open mail endpoint on a verified domain is not. */
   const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const auth = String(req.headers.authorization || '');
-    if (auth !== `Bearer ${secret}`) return res.status(401).json({ ok: false, reason: 'unauthorised' });
+  if (!secret) {
+    console.error('[notify] CRON_SECRET is not set on this deployment, so the cron endpoint '
+      + 'refuses every request. Set it in Vercel and add it to the cron job\'s Authorization header.');
+    return res.status(503).json({ ok: false, reason: 'cron_secret_not_configured' });
   }
+  const auth = String(req.headers.authorization || '');
+  if (auth !== `Bearer ${secret}`) return res.status(401).json({ ok: false, reason: 'unauthorised' });
   if (!SB || !SKEY) return res.status(200).json({ ok: false, reason: 'not_configured', detail: 'SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY missing' });
 
   const report = { checked: 0, due: 0, sent: 0, skipped: 0, failed: 0, tiers: {}, errors: [] };
