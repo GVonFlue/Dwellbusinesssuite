@@ -17,7 +17,7 @@ import {
   Loader2, AlertTriangle, ShieldCheck, RotateCcw, Plane,
 } from 'lucide-react';
 
-import { AI_NAME, BRAND, DEMO, PRODUCT_SHORT } from './lib/brand';
+import { AI_NAME, BRAND, DEMO, PRODUCT_BAR, PRODUCT_SHORT } from './lib/brand';
 import { ASSETS } from './lib/assets';
 import { photoOf } from './lib/people';
 import SidebarArt from './components/SidebarArt';
@@ -345,7 +345,17 @@ export default function App() {
             <div className="sb-brand">
               <div className="sb-glow" aria-hidden="true" />
               <img className="sb-logo" src={ASSETS.clientLogo} alt={ASSETS.clientLogoAlt} />
-              <span className="sb-suite">{isDemo ? `${PRODUCT_SHORT} · demo` : PRODUCT_SHORT}</span>
+              {/* PRODUCT_BAR governs our identity everywhere it appears, not only
+                  the top bar — hiding the wordmark and leaving the product line
+                  in the sidebar is not "off", it is half off.
+
+                  A DEMO ALWAYS SAYS IT IS A DEMO. That marker is not branding;
+                  it is the difference between a prospect clicking around a
+                  sandbox and believing they are looking at live data, so it
+                  survives `off` on purpose. */}
+              {isDemo
+                ? <span className="sb-suite">{`${PRODUCT_SHORT} · demo`}</span>
+                : PRODUCT_BAR !== 'off' && <span className="sb-suite">{PRODUCT_SHORT}</span>}
             </div>
 
             <nav className="sb-nav">
@@ -399,13 +409,17 @@ export default function App() {
             {/* Our wordmark, then the product line. The chip behind the image is
                 #000110 — the same colour as the artwork's own background — so
                 the logo reads as a mark and not as a pasted-in rectangle. */}
-            <div className="suite-bar">
-              <span className="suite-logo">
-                <img src={ASSETS.productLogo} alt={ASSETS.productLogoAlt} />
-              </span>
-              <span className="suite-name">{PRODUCT_SHORT}</span>
-              <span className="suite-for">built for {BRAND.name}</span>
-            </div>
+            {PRODUCT_BAR !== 'off' && (
+              <div className="suite-bar">
+                {PRODUCT_BAR === 'full' && (
+                  <span className="suite-logo">
+                    <img src={ASSETS.productLogo} alt={ASSETS.productLogoAlt} />
+                  </span>
+                )}
+                <span className="suite-name">{PRODUCT_SHORT}</span>
+                <span className="suite-for">built for {BRAND.name}</span>
+              </div>
+            )}
             <div className="top">
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
                 <button className="hamb" onClick={() => setNavOpen(o => !o)}><Menu size={22} /></button>

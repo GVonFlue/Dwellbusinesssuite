@@ -42,7 +42,7 @@ export const ASSETS = {
   /* ours, at the top of every screen. The artwork's own background is #000110,
      which is why .suite-logo paints a #000110 chip behind it — they match
      exactly, so the image reads as a wordmark and not as a pasted rectangle. */
-  productLogo:    '/brand/proytech-logo.png',
+  productLogo:    BRAND.productLogo || '/brand/proytech-logo.png',
   productLogoAlt: 'ProyTech',
 };
 
