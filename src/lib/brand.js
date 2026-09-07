@@ -22,6 +22,34 @@ const NAME = val(import.meta.env.VITE_BRAND_NAME, 'Dwell Real Estate Group');
 export const PRODUCT = val(import.meta.env.VITE_PRODUCT_NAME, 'ProyTech Business Suite');
 export const PRODUCT_SHORT = val(import.meta.env.VITE_PRODUCT_SHORT, 'Business Suite');
 
+/* OUR MARK IN SOMEBODY ELSE'S DAILY TOOL — A DECISION, NOT A DEFAULT.
+
+   The product bar carries our wordmark, our product line and "built for <them>"
+   across the top of every screen. That is right for an install we sell FROM and
+   wrong for one we white-label, and those are different clients, so the answer
+   cannot be given once for everyone.
+
+   It could not be given at all before this: the name was VITE_PRODUCT_SHORT, but
+   the mark was hard-coded in assets.js, and val() falls back on an empty string
+   so the name could be CHANGED and never REMOVED.
+
+     full        wordmark, product line, "built for <client>"   (default)
+     name-only   product line and "built for <client>", no mark
+     off         nothing — the client's own brand stands alone
+
+   Defaulting to `full` means every existing install renders exactly as it did.
+
+   An unrecognised value falls back to `full` and SAYS SO by name, rather than
+   silently picking one — a typo'd VITE_PRODUCT_BAR must not look like a
+   deliberate choice, in either direction. */
+const BAR_MODES = ['full', 'name-only', 'off'];
+const barRaw = val(import.meta.env.VITE_PRODUCT_BAR, 'full').toLowerCase();
+export const PRODUCT_BAR = BAR_MODES.includes(barRaw) ? barRaw : 'full';
+if (barRaw !== PRODUCT_BAR) {
+  console.warn(`[brand] VITE_PRODUCT_BAR="${barRaw}" is not one of ${BAR_MODES.join(' | ')}. `
+    + `Falling back to "full", so our mark IS showing on this install.`);
+}
+
 export const DEMO = (import.meta.env.VITE_DEMO || '').toString().toLowerCase() === '1'
   || (import.meta.env.VITE_DEMO || '').toString().toLowerCase() === 'true';
 
@@ -38,6 +66,11 @@ export const BRAND = {
      it still renders. Host it anywhere the browser can reach; the client's own
      Supabase Storage adds no new vendor. */
   logo:     val(import.meta.env.VITE_LOGO_URL, ''),
+
+  /* Our own mark, same shape as the client's above: set it to point somewhere
+     else, leave it unset to use the bundled file. Separate from PRODUCT_BAR
+     because replacing the artwork and removing it are different intentions. */
+  productLogo: val(import.meta.env.VITE_PRODUCT_LOGO_URL, ''),
 
   /* Sign-in maps a bare username -> username@<authDomain> in Supabase Auth.
 

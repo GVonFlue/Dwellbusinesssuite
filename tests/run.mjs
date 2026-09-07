@@ -102,6 +102,12 @@ if (!only || only === 'oneplace') {
   await mod.default(t);
 }
 
+if (!only || only === 'productbar') {
+  header('product bar — our mark in a client tool is a per-install choice');
+  const mod = await import('./productbar.test.mjs');
+  await mod.default(t);
+}
+
 if (!only || only === 'guards') {
   header('guards — every route that spends money is behind auth');
   const mod = await import('./guards.test.mjs');
