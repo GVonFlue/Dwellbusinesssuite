@@ -36,6 +36,7 @@ import {
 import { computeCommission, agentPlan, capPeriod, usd } from '../lib/commission';
 import { uid, initials, sum } from '../lib/format';
 import { closedOn, txGross } from '../lib/txn';
+import { BRAND } from '../lib/brand';
 
 
 /* -------------------------------------------------------------------------- */
@@ -345,7 +346,7 @@ export function DeadlineRow({ ctx, t, d, onOpen, showAddress, onChange, focus })
           )}
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div className="cd-date" style={{ color: u === 'overdue' ? '#B03030' : u === 'urgent' ? '#A85B10' : '#111528' }}>
+          <div className="cd-date" style={{ color: u === 'overdue' ? '#B03030' : u === 'urgent' ? '#A85B10' : BRAND.colors.ink }}>
             {fmtLong(dateShown)}
           </div>
           <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', marginTop: 5, flexWrap: 'wrap' }}>

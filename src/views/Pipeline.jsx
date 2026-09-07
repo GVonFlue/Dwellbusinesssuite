@@ -23,6 +23,7 @@ import { computeCommission } from '../lib/commission';
 import { usd, uid, initials } from '../lib/format';
 import { ContactModal } from './Contacts';
 import { expectedPrice } from '../lib/txn';
+import { BRAND } from '../lib/brand';
 
 /* The commission rate used for a FORECAST, before a contract exists. It lives
    in settings (settings.forecastRate) so the pipeline and the dashboard cannot
@@ -249,7 +250,7 @@ export default function Pipeline({ ctx }) {
       {ask && (
         <div className="convert-banner fix" style={{ display: 'block' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            <Handshake size={17} style={{ color: '#C8A24A', flex: 'none' }} />
+            <Handshake size={17} style={{ color: BRAND.colors.gold, flex: 'none' }} />
             <b>Under contract — start a transaction for {ask.contact.address || ask.contact.name}?</b>
             <button className="kcoll-x" style={{ marginLeft: 'auto' }} onClick={() => setAsk(null)} aria-label="Cancel">
               <X size={13} />

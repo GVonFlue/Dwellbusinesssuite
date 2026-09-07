@@ -42,6 +42,7 @@ import { agentPlan, computeCommission } from '../lib/commission';
    login is created, never one this screen invents. A row keyed on anything else
    is a seat nobody can sign in to. */
 import { usd, usdc, titleCase } from '../lib/format';
+import { BRAND } from '../lib/brand';
 
 /* the constants in settings.js are the ONLY fallback allowed in this file —
    nothing below hardcodes a stage, a source or a category of its own. */
@@ -264,14 +265,14 @@ function BrandCard({ ctx, open, onToggle }) {
         </Field>
         <Field label="Primary (cobalt)">
           <div style={{ display: 'flex', gap: 9, alignItems: 'center' }}>
-            <Swatch value={d.cobalt || FALLBACK.brand.cobalt || '#1338DE'} onChange={v => ctl.patch({ cobalt: v })} title="Primary" />
-            <Inp value={d.cobalt || ''} placeholder="#1338DE" onChange={e => ctl.patch({ cobalt: e.target.value })} />
+            <Swatch value={d.cobalt || FALLBACK.brand.cobalt || BRAND.colors.cobalt} onChange={v => ctl.patch({ cobalt: v })} title="Primary" />
+            <Inp value={d.cobalt || ''} placeholder="${BRAND.colors.cobalt}" onChange={e => ctl.patch({ cobalt: e.target.value })} />
           </div>
         </Field>
         <Field label="Text (ink)">
           <div style={{ display: 'flex', gap: 9, alignItems: 'center' }}>
-            <Swatch value={d.ink || '#111528'} onChange={v => ctl.patch({ ink: v })} title="Ink" />
-            <Inp value={d.ink || ''} placeholder="#111528" onChange={e => ctl.patch({ ink: e.target.value })} />
+            <Swatch value={d.ink || BRAND.colors.ink} onChange={v => ctl.patch({ ink: v })} title="Ink" />
+            <Inp value={d.ink || ''} placeholder="${BRAND.colors.ink}" onChange={e => ctl.patch({ ink: e.target.value })} />
           </div>
         </Field>
       </div>
@@ -594,7 +595,7 @@ function OffsetsCard({ ctx, open, onToggle }) {
             <div style={{ padding: '0 10px 10px', display: 'flex', gap: 10, alignItems: 'baseline', flexWrap: 'wrap' }}>
               {c ? (
                 <>
-                  <span className="cd-date" style={{ color: '#1338DE' }}>{fmtLong(c.date)}</span>
+                  <span className="cd-date" style={{ color: BRAND.colors.cobalt }}>{fmtLong(c.date)}</span>
                   <span className="cd-count">{c.count}</span>
                   <span className="cd-rule" style={{ marginTop: 0, flex: 1, minWidth: 220 }}>{c.explain}</span>
                 </>

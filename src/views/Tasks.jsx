@@ -28,6 +28,7 @@ import { Card, Btn, Empty, Inp, Pill, Sel } from '../components/ui';
 import { isDate, diffDays, fmtLong } from '../lib/dates';
 import { TASK_BUCKETS, bucketOf, byDue } from '../lib/tasks';
 import { uid } from '../lib/format';
+import { BRAND } from '../lib/brand';
 
 export default function Tasks({ ctx }) {
   const [title, setTitle] = useState('');
@@ -106,7 +107,7 @@ export default function Tasks({ ctx }) {
             {isDate(t.due)
               ? <span className={'tk-due' + (late ? ' late' : '')}>{fmtLong(t.due)}</span>
               : <span className="tk-due none">no date</span>}
-            {t.kind === 'deadline' && <Pill color="#3B3470">from the contract</Pill>}
+            {t.kind === 'deadline' && <Pill color="${BRAND.colors.indigo}">from the contract</Pill>}
             {origin && (
               <button className="tk-origin" onClick={origin.go}>
                 <O size={11} />{origin.label}

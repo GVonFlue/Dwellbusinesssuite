@@ -30,6 +30,7 @@ import { sum, uniq, usd, usdc } from '../lib/format';
 import { phasesOf } from '../lib/settings';
 import { Btn, Card, Empty, Kpi, Pill, SecTitle, Seg, Sel, SideChip, Tag } from '../components/ui';
 import { closedOn, onClosedDate } from '../lib/txn';
+import { BRAND } from '../lib/brand';
 
 /* ------------------------------------------------------------- helpers ----- */
 
@@ -185,7 +186,7 @@ export default function Commission({ ctx }) {
           <Sel value={year} onChange={e => setYear(e.target.value)}
             options={years.map(y => ({ value: y, label: y === curYear ? `${y} — current` : `${y} — archived` }))} />
         </div>
-        <Pill color={archive ? '#8E89A8' : '#1338DE'}>
+        <Pill color={archive ? '#8E89A8' : BRAND.colors.cobalt}>
           {sel.period ? sel.period.label : year}{archive ? ' · archived' : ' · running now'}
         </Pill>
         {sel.period && (
@@ -274,7 +275,7 @@ function AgentSection({ roll: r, phases, archive, isLeader, isMe, canEditSplit, 
         <Card title="Cap progress"
           sub={r.period ? `${r.period.label} · ${fmtLong(r.period.start)} → ${fmtLong(r.period.end)}` : ''}
           right={p.capped
-            ? <Pill color="#1F9D55"><CheckCircle2 size={11} /> Capped out</Pill>
+            ? <Pill color="${BRAND.colors.green}"><CheckCircle2 size={11} /> Capped out</Pill>
             : <Tag>{r.plan.capCadence === 'calendar' ? 'Calendar year' : 'Anniversary year'}</Tag>}>
           {capOff ? (
             <div className="cmsn-box">
@@ -428,9 +429,9 @@ function TxnCard({ row, plan, projected, outsidePeriod, periodLabel }) {
         <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           {projected && <Pill color="#D98A3D">Projected</Pill>}
           {outsidePeriod && <Tag>{periodLabel ? `${periodLabel} cap period — fresh cap` : 'next cap period — fresh cap'}</Tag>}
-          {calc.capMetOnThis && <Pill color="#1F9D55"><Target size={11} /> Capped out on this one</Pill>}
-          {calc.straddle && <Pill color="#C8A24A"><AlertTriangle size={11} /> Cap straddle</Pill>}
-          {calc.fullyPostCap && <Pill color="#1F9D55">Post-cap</Pill>}
+          {calc.capMetOnThis && <Pill color="${BRAND.colors.green}"><Target size={11} /> Capped out on this one</Pill>}
+          {calc.straddle && <Pill color="${BRAND.colors.gold}"><AlertTriangle size={11} /> Cap straddle</Pill>}
+          {calc.fullyPostCap && <Pill color="${BRAND.colors.green}">Post-cap</Pill>}
           <button className="iconbtn" onClick={() => setOpen(o => !o)} aria-label="Toggle the breakdown">
             {open ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
           </button>
@@ -607,7 +608,7 @@ function AgentTable({ rolls, selected, onPick }) {
               <td>{usd(r.fees)}</td>
               <td>
                 {r.plan.cap <= 0 ? <Tag>no cap</Tag>
-                  : r.progress.capped ? <Pill color="#1F9D55">capped</Pill>
+                  : r.progress.capped ? <Pill color="${BRAND.colors.green}">capped</Pill>
                   : `${usd(r.progress.paid)} / ${usd(r.plan.cap)}`}
               </td>
               <td>{usd(r.projectedNet)}</td>
